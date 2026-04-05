@@ -1,0 +1,17 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(docker compose:*)",
+      "Bash(curl -s http://localhost:8000/health)",
+      "Bash(curl -s http://localhost:3000 -o /dev/null -w \"Frontend HTTP status: %{http_code}\")",
+      "Bash(curl -s \"http://localhost:8000/api/v1/articles?page=1&page_size=1\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); a=d['items'][0]; print\\(a['slug']\\); print\\(a['tl_dr']\\)\")",
+      "Bash(curl -s \"http://localhost:8000/api/v1/articles/gradient-labs-gives-every-bank-customer-an-ai-account-manager-0f9835b1\")",
+      "Bash(python -c \"import sys,json; d=json.load\\(sys.stdin\\); print\\(json.dumps\\(d, indent=2\\)\\)\")",
+      "Bash(curl -s \"http://localhost:3000/article/gradient-labs-gives-every-bank-customer-an-ai-account-manager-0f9835b1\" -o /dev/null -w \"%{http_code}\")",
+      "Bash(curl -s http://localhost:3000)",
+      "Bash(curl -s \"http://localhost:3000/article/gradient-labs-gives-every-bank-customer-an-ai-account-manager-0f9835b1\" -o /dev/null -w \"Article page: %{http_code}\\\\n\")",
+      "Bash(curl -s http://localhost:3000 -o /dev/null -w \"Homepage: %{http_code}\\\\n\")"
+    ]
+  }
+}
