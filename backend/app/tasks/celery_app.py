@@ -16,12 +16,18 @@ celery_app = Celery(
     ],
 )
 
+# SSL config for Upstash rediss:// URLs
+_redis_ssl = settings.redis_url.startswith("rediss://")
+_broker_transport_options = {"ssl_cert_reqs": "CERT_NONE"} if _redis_ssl else {}
+
 celery_app.conf.update(
     task_serializer="json",
     result_serializer="json",
     accept_content=["json"],
     timezone="UTC",
     enable_utc=True,
+    broker_use_ssl={"ssl_cert_reqs": __import__("ssl").CERT_NONE} if _redis_ssl else None,
+    redis_backend_use_ssl={"ssl_cert_reqs": __import__("ssl").CERT_NONE} if _redis_ssl else None,
     task_acks_late=True,
     worker_prefetch_multiplier=1,
     task_track_started=True,
