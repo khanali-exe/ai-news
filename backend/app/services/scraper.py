@@ -99,8 +99,11 @@ def scrape_source(source: Source, db: Session) -> dict:
             if not url or not title:
                 continue
 
-            # Skip if already in DB
-            exists = db.query(Article.id).filter(Article.url == url).first()
+            # Skip if already in DB (check both url and slug)
+            slug = _make_slug(title, url)
+            exists = db.query(Article.id).filter(
+                (Article.url == url) | (Article.slug == slug)
+            ).first()
             if exists:
                 continue
 
@@ -131,7 +134,7 @@ def scrape_source(source: Source, db: Session) -> dict:
 
             article = Article(
                 title=title,
-                slug=_make_slug(title, url),
+                slug=slug,
                 url=url,
                 source_id=source.id,
                 raw_content=raw_content[:MAX_CONTENT_CHARS] if raw_content else None,
@@ -141,7 +144,12 @@ def scrape_source(source: Source, db: Session) -> dict:
                 is_published=False,
             )
             db.add(article)
-            new_count += 1
+            try:
+                db.flush()  # catch constraint violations per-article
+                new_count += 1
+            except Exception as flush_err:
+                db.rollback()
+                logger.debug("Skipping duplicate article %s: %s", url, flush_err)
 
         db.commit()
 
