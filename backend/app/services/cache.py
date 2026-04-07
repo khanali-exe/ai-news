@@ -17,7 +17,11 @@ _client: Optional[redis_lib.Redis] = None
 def get_redis() -> redis_lib.Redis:
     global _client
     if _client is None:
-        _client = redis_lib.from_url(settings.redis_url, decode_responses=True)
+        import ssl
+        kwargs: dict = {"decode_responses": True}
+        if settings.redis_url.startswith("rediss://"):
+            kwargs["ssl_cert_reqs"] = ssl.CERT_NONE
+        _client = redis_lib.from_url(settings.redis_url, **kwargs)
     return _client
 
 
