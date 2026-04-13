@@ -7,6 +7,8 @@ import { ExplainButton } from "@/components/news/ExplainButton";
 import { CopyButton } from "@/components/ui/CopyButton";
 import { ShareButton } from "@/components/ui/ShareButton";
 import { RelatedArticles } from "@/components/news/RelatedArticles";
+import { ReadingProgress } from "@/components/ui/ReadingProgress";
+import { BackToTop } from "@/components/ui/BackToTop";
 import { formatDate, readingTime } from "@/lib/utils";
 import type { Metadata } from "next";
 
@@ -61,6 +63,8 @@ export default async function ArticlePage({ params }: Props) {
 
   return (
     <div className="mx-auto max-w-2xl">
+      <ReadingProgress accentColor={theme.accent} />
+      <BackToTop />
 
       {/* Back */}
       <Link href="/"
