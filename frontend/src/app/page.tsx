@@ -110,12 +110,7 @@ function HomeContent() {
 
       {/* Hero */}
       <div className="mb-8 text-center">
-        <div className="mb-3 inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-medium text-brand-400"
-             style={{ background: "rgba(14,165,233,0.08)", border: "1px solid rgba(14,165,233,0.15)" }}>
-          <span className="glow-pulse h-1.5 w-1.5 bg-brand-400 rounded-full" />
-          {stats ? `${stats.total_published.toLocaleString()} verified articles` : "Verified · Fact-checked · Auto-updated every 30 min"}
-        </div>
-        <p className="mt-1.5 text-sm" style={{ color: "var(--muted)" }}>
+        <p className="text-sm" style={{ color: "var(--muted)" }}>
           Only verified news from primary sources — OpenAI, DeepMind, Anthropic, Meta AI, and more.
         </p>
       </div>
