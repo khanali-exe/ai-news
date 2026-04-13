@@ -51,7 +51,15 @@ export function Header() {
             alt="aisimplest"
             width={180}
             height={60}
-            className="h-8 w-auto transition-opacity group-hover:opacity-80"
+            className="h-8 w-auto transition-opacity group-hover:opacity-80 dark-logo"
+            priority
+          />
+          <Image
+            src="/lightlogo.png"
+            alt="aisimplest"
+            width={180}
+            height={60}
+            className="h-8 w-auto transition-opacity group-hover:opacity-80 light-logo"
             priority
           />
           <span className="text-sm font-bold tracking-tight text-white">

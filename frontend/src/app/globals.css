@@ -156,12 +156,11 @@ body {
   box-shadow: 0 1px 0 rgba(180,160,130,0.15) !important;
 }
 
-/* Logo: add dark background pill so brain icon is always visible */
-[data-theme="light"] header img {
-  background: #1c1814;
-  border-radius: 8px;
-  padding: 3px 6px;
-}
+/* Logo swap between themes */
+.light-logo { display: none; }
+.dark-logo  { display: block; }
+[data-theme="light"] .light-logo { display: block; }
+[data-theme="light"] .dark-logo  { display: none; }
 
 /* Sections that must stay dark regardless of theme */
 [data-theme="light"] .always-dark .text-white        { color: #ffffff !important; }
