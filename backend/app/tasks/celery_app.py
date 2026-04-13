@@ -33,6 +33,14 @@ celery_app.conf.update(
     task_track_started=True,
     result_expires=3600,
 
+    # Reduce Redis command volume for Upstash free tier
+    worker_heartbeat_interval=60,       # heartbeat every 60s (default: 2s) — 30x fewer commands
+    worker_proc_alive_timeout=120,      # allow 2 missed heartbeats before marking dead
+    broker_heartbeat=60,                # broker heartbeat every 60s (default: 2s)
+    broker_heartbeat_checkrate=2,       # check every 2 intervals = 120s
+    result_chord_retry_interval=60,     # chord polling interval
+    worker_cancel_long_running_tasks_on_connection_loss=True,
+
     beat_schedule={
         "scrape-all-sources": {
             "task": "app.tasks.scrape_task.scrape_all_sources_task",
