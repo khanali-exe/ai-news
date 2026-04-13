@@ -198,3 +198,30 @@ body {
 /* Scrollbar in light mode */
 [data-theme="light"] ::-webkit-scrollbar-thumb { background: #c4b8a8; }
 [data-theme="light"] ::-webkit-scrollbar-thumb:hover { background: #a89880; }
+
+/* Article hero card in light mode */
+[data-theme="light"] .article-hero {
+  background: var(--surface) !important;
+  border: 1px solid var(--border-hover) !important;
+  box-shadow: 0 2px 16px rgba(80,60,40,0.08), 0 1px 4px rgba(80,60,40,0.05) !important;
+}
+/* Category accent top border strip */
+[data-theme="light"] .article-hero::before {
+  content: "";
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: var(--cat-accent);
+  opacity: 0.7;
+  border-radius: 1.5rem 1.5rem 0 0;
+}
+/* Fix all text inside hero for light mode */
+[data-theme="light"] .article-hero h1,
+[data-theme="light"] .article-hero .text-white { color: var(--text) !important; }
+[data-theme="light"] .article-hero span,
+[data-theme="light"] .article-hero p { color: var(--muted) !important; }
+/* Keep badge/pill text readable */
+[data-theme="light"] .article-hero .text-emerald-300 { color: #059669 !important; }
+[data-theme="light"] .article-hero .text-\[\#7dd3fc\] { color: #0369a1 !important; }
+/* Keep the background emoji subtle */
+[data-theme="light"] .article-hero .opacity-\[0\.06\] { opacity: 0.04 !important; }

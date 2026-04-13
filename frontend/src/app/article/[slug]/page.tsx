@@ -74,8 +74,8 @@ export default async function ArticlePage({ params }: Props) {
       </Link>
 
       {/* ── HERO BANNER ──────────────────────────────────────────── */}
-      <div className={`always-dark relative mb-5 overflow-hidden rounded-3xl bg-gradient-to-br ${theme.gradient} fade-up`}
-           style={{ border: `1px solid ${theme.accent}25` }}>
+      <div className={`article-hero always-dark relative mb-5 overflow-hidden rounded-3xl bg-gradient-to-br ${theme.gradient} fade-up`}
+           style={{ border: `1px solid ${theme.accent}25`, "--cat-accent": theme.accent, "--cat-glow": theme.glow } as React.CSSProperties}>
 
         {/* Large background emoji */}
         <div className="pointer-events-none absolute right-6 top-1/2 -translate-y-1/2 select-none text-[120px] opacity-[0.06]">
