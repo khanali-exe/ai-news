@@ -106,15 +106,15 @@ body {
 
 /* ── Light mode ──────────────────────────────────────── */
 [data-theme="light"] {
-  --bg:          #f4f5f7;
-  --surface:     #ffffff;
-  --surface-2:   #eef0f4;
-  --surface-3:   #e4e6ed;
-  --border:      #dde0ea;
-  --border-hover:#b8bdd0;
-  --text:        #111318;
-  --muted:       #727285;
-  --muted-2:     #484860;
+  --bg:          #f7f3ee;
+  --surface:     #fdfaf7;
+  --surface-2:   #f0ebe4;
+  --surface-3:   #e8e1d8;
+  --border:      #ddd5c8;
+  --border-hover:#c4b8a8;
+  --text:        #1c1814;
+  --muted:       #7a6e62;
+  --muted-2:     #5a5048;
   color-scheme: light;
 }
 
@@ -124,24 +124,46 @@ body {
 }
 
 /* Flip hardcoded zinc text */
-[data-theme="light"] .text-white        { color: #0f0f18 !important; }
-[data-theme="light"] .text-zinc-200     { color: #1a1a28 !important; }
-[data-theme="light"] .text-zinc-300     { color: #2d2d40 !important; }
-[data-theme="light"] .text-zinc-400     { color: #505065 !important; }
-[data-theme="light"] .text-zinc-500     { color: #727285 !important; }
-[data-theme="light"] .text-zinc-600     { color: #959598 !important; }
-[data-theme="light"] .text-zinc-700     { color: #b0b0b8 !important; }
-[data-theme="light"] .placeholder-zinc-700::placeholder { color: #b0b0b8 !important; }
+[data-theme="light"] .text-white        { color: #1c1814 !important; }
+[data-theme="light"] .text-zinc-200     { color: #2a241e !important; }
+[data-theme="light"] .text-zinc-300     { color: #3d3530 !important; }
+[data-theme="light"] .text-zinc-400     { color: #5a5048 !important; }
+[data-theme="light"] .text-zinc-500     { color: #7a6e62 !important; }
+[data-theme="light"] .text-zinc-600     { color: #9e9080 !important; }
+[data-theme="light"] .text-zinc-700     { color: #b8aca0 !important; }
+[data-theme="light"] .placeholder-zinc-700::placeholder { color: #b8aca0 !important; }
 
 /* Card & glass in light mode */
-[data-theme="light"] .card             { background: var(--surface) !important; }
-[data-theme="light"] .card:hover       { box-shadow: 0 0 0 1px rgba(14,165,233,0.12), 0 12px 40px rgba(0,0,0,0.1), 0 4px 12px rgba(0,0,0,0.06) !important; }
-[data-theme="light"] .glass            { background: rgba(255,255,255,0.82) !important; border-color: rgba(0,0,0,0.07) !important; }
+[data-theme="light"] .card {
+  background: var(--surface) !important;
+  border-color: var(--border) !important;
+  box-shadow: 0 1px 4px rgba(80,60,40,0.06) !important;
+}
+[data-theme="light"] .card:hover {
+  box-shadow: 0 0 0 1px rgba(14,165,233,0.15), 0 8px 32px rgba(80,60,40,0.12), 0 2px 8px rgba(80,60,40,0.08) !important;
+  border-color: var(--border-hover) !important;
+}
+[data-theme="light"] .glass {
+  background: rgba(253,250,247,0.88) !important;
+  border-color: rgba(180,160,130,0.2) !important;
+  box-shadow: 0 1px 8px rgba(80,60,40,0.06) !important;
+}
 
 /* Header in light mode */
-[data-theme="light"] header            { background: rgba(244,245,247,0.94) !important; border-color: rgba(0,0,0,0.07) !important; }
+[data-theme="light"] header {
+  background: rgba(247,243,238,0.95) !important;
+  border-color: rgba(180,160,130,0.2) !important;
+  box-shadow: 0 1px 0 rgba(180,160,130,0.15) !important;
+}
 
-/* Sections that must stay dark regardless of theme (e.g. dark gradient hero banners) */
+/* Logo: add dark background pill so brain icon is always visible */
+[data-theme="light"] header img {
+  background: #1c1814;
+  border-radius: 8px;
+  padding: 3px 6px;
+}
+
+/* Sections that must stay dark regardless of theme */
 [data-theme="light"] .always-dark .text-white        { color: #ffffff !important; }
 [data-theme="light"] .always-dark .text-zinc-200     { color: rgba(255,255,255,0.85) !important; }
 [data-theme="light"] .always-dark .text-zinc-300     { color: rgba(255,255,255,0.75) !important; }
@@ -151,7 +173,7 @@ body {
 
 /* Stats total number in light mode */
 [data-theme="light"] .stats-total {
-  background: linear-gradient(135deg, #0f0f18 30%, #484860 100%) !important;
+  background: linear-gradient(135deg, #1c1814 30%, #5a5048 100%) !important;
   -webkit-background-clip: text !important;
   -webkit-text-fill-color: transparent !important;
 }
@@ -160,8 +182,20 @@ body {
 [data-theme="light"] .search-input {
   background: var(--surface-2) !important;
   color: var(--text) !important;
+  border-color: var(--border) !important;
 }
 [data-theme="light"] .search-input:focus {
-  background: #ffffff !important;
+  background: var(--surface) !important;
   border-color: rgba(14,165,233,0.5) !important;
+  box-shadow: 0 0 0 3px rgba(14,165,233,0.08) !important;
 }
+
+/* Filter pills in light mode */
+[data-theme="light"] .filter-pill {
+  background: var(--surface-2) !important;
+  border-color: var(--border) !important;
+}
+
+/* Scrollbar in light mode */
+[data-theme="light"] ::-webkit-scrollbar-thumb { background: #c4b8a8; }
+[data-theme="light"] ::-webkit-scrollbar-thumb:hover { background: #a89880; }
