@@ -111,9 +111,9 @@ function HomeContent() {
           Verified · Fact-checked · Auto-updated every 30 min
         </div>
         <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
-          AI Intelligence Feed
+          AI SIMPLEST
         </h1>
-        <p className="mt-1.5 text-sm" style={{ color: "var(--muted)" }}>
+        <p className="mt-1.5 text-sm text-center" style={{ color: "var(--muted)" }}>
           Only verified news from primary sources — OpenAI, DeepMind, Anthropic, Meta AI, and more.
         </p>
       </div>
