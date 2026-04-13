@@ -1,13 +1,15 @@
 "use client";
 import { useState, useEffect, useRef, useCallback, Suspense } from "react";
 import { useSearchParams, useRouter } from "next/navigation";
+import useSWR from "swr";
 import { NewsGrid } from "@/components/news/NewsGrid";
 import { FilterBar } from "@/components/filters/FilterBar";
 import { StatsBar } from "@/components/news/StatsBar";
 import { TrendingSection } from "@/components/news/TrendingSection";
 import { NewArticlesBanner } from "@/components/news/NewArticlesBanner";
 import { useBookmarks } from "@/hooks/useBookmarks";
-import { SubscribeForm } from "@/components/ui/SubscribeForm";
+import { API_BASE } from "@/lib/constants";
+import { swrFetcher } from "@/lib/api";
 import type { FilterState, ArticleList } from "@/types";
 
 function HomeContent() {
@@ -19,6 +21,9 @@ function HomeContent() {
   const [focusedSlug, setFocusedSlug] = useState<string | null>(null);
   const [showKeyHint, setShowKeyHint] = useState(false);
   const { toggle: toggleBookmark } = useBookmarks();
+  const { data: stats } = useSWR<{ total_published: number }>(
+    `${API_BASE}/api/v1/articles/stats`, swrFetcher, { revalidateOnFocus: false, refreshInterval: 120000 }
+  );
 
   const [filters, setFilters] = useState<FilterState>({
     category: searchParams.get("category") ?? "",
@@ -108,11 +113,8 @@ function HomeContent() {
         <div className="mb-3 inline-flex items-center gap-2 rounded-full px-3 py-1 text-[11px] font-medium text-brand-400"
              style={{ background: "rgba(14,165,233,0.08)", border: "1px solid rgba(14,165,233,0.15)" }}>
           <span className="glow-pulse h-1.5 w-1.5 bg-brand-400 rounded-full" />
-          Verified · Fact-checked · Auto-updated every 30 min
+          {stats ? `${stats.total_published.toLocaleString()} verified articles` : "Verified · Fact-checked · Auto-updated every 30 min"}
         </div>
-        <h1 className="hidden sm:block text-2xl font-bold tracking-tight text-white sm:text-3xl">
-          AI SIMPLEST
-        </h1>
         <p className="mt-1.5 text-sm" style={{ color: "var(--muted)" }}>
           Only verified news from primary sources — OpenAI, DeepMind, Anthropic, Meta AI, and more.
         </p>

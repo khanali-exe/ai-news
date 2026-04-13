@@ -54,7 +54,7 @@ export function Header() {
             className="h-8 w-auto transition-opacity group-hover:opacity-80"
             priority
           />
-          <span className="text-sm font-bold tracking-tight text-white sm:hidden">
+          <span className="text-sm font-bold tracking-tight text-white">
             AI SIMPLEST
           </span>
         </Link>
