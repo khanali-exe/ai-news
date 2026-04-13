@@ -18,6 +18,7 @@ logger = logging.getLogger(__name__)
 
 FETCH_TIMEOUT = 15  # seconds
 MAX_CONTENT_CHARS = 8000  # cap raw content to avoid huge DB rows
+MAX_ENTRIES_PER_SOURCE = 30  # only process the latest N entries per scrape
 
 
 def _fetch_page(url: str) -> Optional[BeautifulSoup]:
@@ -89,10 +90,11 @@ def scrape_source(source: Source, db: Session) -> dict:
         if feed.bozo and not feed.entries:
             raise ValueError(f"Malformed feed: {feed.bozo_exception}")
 
-        found = len(feed.entries)
+        entries = feed.entries[:MAX_ENTRIES_PER_SOURCE]
+        found = len(entries)
         new_count = 0
 
-        for entry in feed.entries:
+        for entry in entries:
             url = entry.get("link", "").strip()
             title = entry.get("title", "").strip()
 
