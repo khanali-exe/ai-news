@@ -21,9 +21,9 @@ export function CopyButton({ accentColor = "#7c3aed" }: { accentColor?: string }
       title="Copy link to article"
       className="flex items-center gap-1.5 rounded-lg px-3 py-1.5 text-xs font-medium transition-all duration-200"
       style={{
-        background: copied ? `${accentColor}20` : "rgba(255,255,255,0.05)",
-        border: `1px solid ${copied ? accentColor + "45" : "rgba(255,255,255,0.09)"}`,
-        color: copied ? accentColor : "rgba(255,255,255,0.38)",
+        background: copied ? `${accentColor}20` : "var(--surface-2)",
+        border: `1px solid ${copied ? accentColor + "55" : "var(--border-hover)"}`,
+        color: copied ? accentColor : "var(--muted-2)",
       }}
     >
       {copied ? <Check className="h-3 w-3" /> : <Link2 className="h-3 w-3" />}
