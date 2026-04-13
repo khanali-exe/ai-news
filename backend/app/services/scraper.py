@@ -99,6 +99,22 @@ def scrape_source(source: Source, db: Session) -> dict:
             if not url or not title:
                 continue
 
+            # Pre-filter: skip tutorial/guide/documentation titles
+            _title_lower = title.lower()
+            _skip_prefixes = (
+                "how to ", "using ", "working with ", "getting started",
+                "introduction to ", "guide to ", "learn to ", "tutorial:",
+                "prompting ", "personalizing ", "creating images with",
+            )
+            _skip_keywords = (
+                " tutorial", " walkthrough", " cheat sheet", "step-by-step",
+                "for beginners", "tips and tricks",
+            )
+            if any(_title_lower.startswith(p) for p in _skip_prefixes) or \
+               any(k in _title_lower for k in _skip_keywords):
+                logger.debug("Skipping tutorial-style article: %s", title)
+                continue
+
             # Skip if already in DB (check both url and slug)
             slug = _make_slug(title, url)
             exists = db.query(Article.id).filter(
