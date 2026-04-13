@@ -60,7 +60,7 @@ export function Header() {
         </Link>
 
         {/* Search bar */}
-        <form onSubmit={handleSearch} className="hidden flex-1 max-w-sm sm:flex">
+        <form onSubmit={handleSearch} className="hidden flex-1 max-w-sm sm:flex ml-auto">
           <div className="relative w-full">
             <Search className="pointer-events-none absolute left-3 top-1/2 h-3.5 w-3.5 -translate-y-1/2 text-zinc-600 transition-colors peer-focus:text-brand-400" />
             <input
