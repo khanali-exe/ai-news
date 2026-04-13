@@ -1,7 +1,8 @@
 "use client";
 import Link from "next/link";
+import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
-import { Zap, Search, X, Bookmark } from "lucide-react";
+import { Search, X, Bookmark } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { useBookmarks } from "@/hooks/useBookmarks";
@@ -44,16 +45,15 @@ export function Header() {
       <div className="mx-auto flex h-14 max-w-7xl items-center gap-4 px-4 sm:px-6 lg:px-8">
 
         {/* Logo */}
-        <Link href="/" className="flex shrink-0 items-center gap-2.5 group">
-          <div
-            className="flex h-7 w-7 items-center justify-center rounded-xl transition-opacity group-hover:opacity-80"
-            style={{ background: "linear-gradient(135deg,#0ea5e9 0%,#818cf8 100%)" }}
-          >
-            <Zap className="h-3.5 w-3.5 text-white" strokeWidth={2.5} />
-          </div>
-          <span className="hidden text-sm font-semibold tracking-tight text-white sm:block">
-            AI Intelligence Hub
-          </span>
+        <Link href="/" className="flex shrink-0 items-center group">
+          <Image
+            src="/logo.png"
+            alt="aisimplest"
+            width={120}
+            height={40}
+            className="h-8 w-auto transition-opacity group-hover:opacity-80"
+            priority
+          />
         </Link>
 
         {/* Search bar */}
