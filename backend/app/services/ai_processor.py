@@ -137,9 +137,14 @@ def process_article(
     Returns structured dict on success, None on failure.
     Caches results to avoid duplicate API calls.
     """
-    if not raw_content or len(raw_content.strip()) < 100:
-        logger.warning("Article %d has insufficient content, skipping AI processing", article_id)
-        return None
+    # Use title as fallback content if raw_content is too short
+    content = raw_content.strip() if raw_content else ""
+    if len(content) < 100:
+        if title and len(title) >= 20:
+            content = f"{title}\n\n{content}".strip()
+        if len(content) < 20:
+            logger.warning("Article %d has insufficient content, skipping AI processing", article_id)
+            return None
 
     url_hash = _url_hash(url)
 
@@ -150,7 +155,7 @@ def process_article(
         return cached
 
     try:
-        raw_output = _call_openai(title, raw_content)
+        raw_output = _call_openai(title, content)
         validated = _validate_output(raw_output)
 
         # Cache the result
