@@ -29,7 +29,13 @@ from AI news articles. You must:
 4. Keep all outputs factual and concise.
 5. The tl_dr must be 20 words or fewer.
 
+IMPORTANT: First determine if this article is primarily about artificial intelligence, machine learning,
+large language models, AI tools, AI policy, AI research, or AI companies (OpenAI, Anthropic, Google DeepMind,
+Meta AI, Mistral, etc.). Articles about general tech, gadgets, games, social media, or non-AI topics must
+be flagged as not relevant even if published in an AI section.
+
 You will return a JSON object with exactly these fields:
+- is_ai_relevant: boolean — true only if the article is primarily about AI/ML
 - tl_dr: string (≤20 words) or null
 - what_happened: string (2-4 sentences, facts only) or null
 - why_it_matters: string (1-3 sentences, clear explanation) or null
@@ -81,6 +87,9 @@ def _call_openai(title: str, content: str) -> dict:
 def _validate_output(data: dict) -> dict:
     """Ensure all expected fields exist with correct types. Strip unexpected keys."""
     valid = {}
+
+    # AI relevance gate — default to True for safety, but reject if explicitly False
+    valid["is_ai_relevant"] = data.get("is_ai_relevant", True) is not False
 
     tl_dr = data.get("tl_dr")
     if isinstance(tl_dr, str) and tl_dr.strip():

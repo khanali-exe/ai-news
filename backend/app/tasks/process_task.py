@@ -57,6 +57,15 @@ def process_article_task(self, article_id: int):
             logger.warning("AI processing returned nothing for article %d", article_id)
             return
 
+        # ── Step 1b: AI relevance gate ────────────────────────────────────────
+        if not analysis.get("is_ai_relevant", True):
+            article.processing_status = "rejected"
+            article.processing_error = "Not AI-related content"
+            article.is_published = False
+            db.commit()
+            logger.info("Article %d rejected: not AI-related", article_id)
+            return
+
         # ── Step 2: Fact-check ────────────────────────────────────────────────
         fc_result = fact_check_article(
             title=article.title,
