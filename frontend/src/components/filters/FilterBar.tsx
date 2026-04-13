@@ -171,15 +171,22 @@ export function FilterBar({ filters, onChange }: Props) {
           >
             All sources
           </DropdownItem>
-          {sources.map((src) => (
-            <DropdownItem
-              key={src.id}
-              active={filters.sourceId === String(src.id)}
-              onClick={() => onChange({ sourceId: String(src.id), page: 1 })}
-            >
-              {src.name}
-            </DropdownItem>
-          ))}
+          {sources.map((src) => {
+            const display = src.name
+              .replace("Google DeepMind Blog", "DeepMind")
+              .replace("Microsoft Research Blog", "MS Research")
+              .replace(" Blog", "")
+              .replace(" AI", "");
+            return (
+              <DropdownItem
+                key={src.id}
+                active={filters.sourceId === String(src.id)}
+                onClick={() => onChange({ sourceId: String(src.id), page: 1 })}
+              >
+                {display}
+              </DropdownItem>
+            );
+          })}
         </Dropdown>
       )}
 
