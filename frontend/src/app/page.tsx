@@ -110,7 +110,7 @@ function HomeContent() {
           <span className="glow-pulse h-1.5 w-1.5 bg-brand-400 rounded-full" />
           Verified · Fact-checked · Auto-updated every 30 min
         </div>
-        <h1 className="text-2xl font-bold tracking-tight text-white sm:text-3xl">
+        <h1 className="hidden sm:block text-2xl font-bold tracking-tight text-white sm:text-3xl">
           AI SIMPLEST
         </h1>
         <p className="mt-1.5 text-sm" style={{ color: "var(--muted)" }}>

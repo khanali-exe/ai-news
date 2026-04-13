@@ -45,15 +45,18 @@ export function Header() {
       <div className="mx-auto flex h-14 max-w-7xl items-center gap-4 px-4 sm:px-6 lg:px-8">
 
         {/* Logo */}
-        <Link href="/" className="flex shrink-0 items-center group">
+        <Link href="/" className="flex shrink-0 items-center gap-2 group">
           <Image
             src="/logo.png"
             alt="aisimplest"
             width={180}
             height={60}
-            className="h-12 w-auto transition-opacity group-hover:opacity-80"
+            className="h-8 w-auto transition-opacity group-hover:opacity-80"
             priority
           />
+          <span className="text-sm font-bold tracking-tight text-white sm:hidden">
+            AI SIMPLEST
+          </span>
         </Link>
 
         {/* Search bar */}
