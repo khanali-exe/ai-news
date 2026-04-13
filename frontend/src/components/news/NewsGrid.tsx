@@ -20,7 +20,7 @@ export function NewsGrid({ filters, onMutateReady, onArticlesChange, focusedSlug
   const [prevCount, setPrevCount]     = useState(0);
   const [maxId, setMaxId]             = useState<number | null>(null);
 
-  const filterKey = `${filters.category}|${filters.search}`;
+  const filterKey = `${filters.category}|${filters.search}|${filters.dateFilter}|${filters.sourceId}`;
 
   useEffect(() => {
     setPage(1);

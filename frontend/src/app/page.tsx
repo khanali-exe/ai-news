@@ -29,6 +29,8 @@ function HomeContent() {
     category: searchParams.get("category") ?? "",
     search: searchParams.get("search") ?? "",
     page: 1,
+    dateFilter: searchParams.get("date") ?? "",
+    sourceId: searchParams.get("source") ?? "",
   });
 
   useEffect(() => {
@@ -36,6 +38,8 @@ function HomeContent() {
       ...prev,
       search: searchParams.get("search") ?? "",
       category: searchParams.get("category") ?? prev.category,
+      dateFilter: searchParams.get("date") ?? prev.dateFilter,
+      sourceId: searchParams.get("source") ?? prev.sourceId,
       page: 1,
     }));
   }, [searchParams]);
@@ -46,6 +50,8 @@ function HomeContent() {
     const params = new URLSearchParams();
     if (next.category) params.set("category", next.category);
     if (next.search) params.set("search", next.search);
+    if (next.dateFilter) params.set("date", next.dateFilter);
+    if (next.sourceId) params.set("source", next.sourceId);
     const qs = params.toString();
     router.replace(qs ? `/?${qs}` : "/", { scroll: false });
   }

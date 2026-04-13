@@ -58,13 +58,14 @@ def list_articles(
     verification_status: Optional[str] = Query(None),
     source_id: Optional[int] = Query(None),
     search: Optional[str] = Query(None),
+    date_from: Optional[str] = Query(None),  # "today" | "week" | "month"
     page: int = Query(1, ge=1),
     page_size: int = Query(20, ge=1, le=100),
     max_id: Optional[int] = Query(None),   # cursor — freeze result set after page 1
     db: Session = Depends(get_db),
 ):
     cache_key = (
-        f"article_list:{page}:{page_size}:{category}:{verification_status}:{source_id}:{max_id}"
+        f"article_list:{page}:{page_size}:{category}:{verification_status}:{source_id}:{date_from}:{max_id}"
         if not search else None
     )
     if cache_key:
@@ -84,6 +85,18 @@ def list_articles(
         query = query.filter(Article.verification_status == verification_status)
     if source_id:
         query = query.filter(Article.source_id == source_id)
+    if date_from:
+        now = datetime.utcnow()
+        if date_from == "today":
+            cutoff = now - timedelta(hours=24)
+        elif date_from == "week":
+            cutoff = now - timedelta(days=7)
+        elif date_from == "month":
+            cutoff = now - timedelta(days=30)
+        else:
+            cutoff = None
+        if cutoff:
+            query = query.filter(Article.published_at >= cutoff)
     if search:
         term = f"%{search}%"
         query = query.filter(

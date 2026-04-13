@@ -42,6 +42,8 @@ export interface FilterState {
   category: string;
   search: string;
   page: number;
+  dateFilter: string;  // "" | "today" | "week" | "month"
+  sourceId: string;    // "" | "1" | "2" etc
 }
 
 export interface CategoryCount {
