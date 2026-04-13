@@ -49,9 +49,10 @@ export function Header() {
           <Image
             src="/logo.png"
             alt="aisimplest"
-            width={120}
-            height={40}
-            className="h-8 w-auto transition-opacity group-hover:opacity-80"
+            width={180}
+            height={60}
+            className="h-12 w-auto transition-opacity group-hover:opacity-80"
+            style={{ mixBlendMode: "screen" }}
             priority
           />
         </Link>
