@@ -101,12 +101,23 @@ def scrape_source(source: Source, db: Session) -> dict:
             if not url or not title:
                 continue
 
+            # Pre-filter: skip known junk URL patterns
+            _url_lower = url.lower()
+            _skip_url_segments = (
+                "/academy/", "/learn/", "/education/", "/tutorial/",
+                "/getting-started/", "/docs/", "/documentation/",
+            )
+            if any(seg in _url_lower for seg in _skip_url_segments):
+                logger.debug("Skipping academy/docs URL: %s", url)
+                continue
+
             # Pre-filter: skip tutorial/guide/documentation titles
             _title_lower = title.lower()
             _skip_prefixes = (
                 "how to ", "using ", "working with ", "getting started",
                 "introduction to ", "guide to ", "learn to ", "tutorial:",
                 "prompting ", "personalizing ", "creating images with",
+                "brainstorming with ", "writing with ", "applications of ai at",
             )
             _skip_keywords = (
                 " tutorial", " walkthrough", " cheat sheet", "step-by-step",
