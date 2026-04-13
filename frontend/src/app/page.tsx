@@ -109,7 +109,7 @@ function HomeContent() {
       <NewArticlesBanner onRefresh={handleRefresh} />
 
       {/* Hero */}
-      <div className="mb-8 text-center">
+      <div className="mb-8 text-center sm:text-left">
         <p className="text-sm" style={{ color: "var(--muted)" }}>
           Only verified news from primary sources — OpenAI, DeepMind, Anthropic, Meta AI, and more.
         </p>
