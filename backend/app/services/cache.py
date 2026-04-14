@@ -17,11 +17,18 @@ _client: Optional[redis_lib.Redis] = None
 def get_redis() -> redis_lib.Redis:
     global _client
     if _client is None:
-        kwargs: dict = {"decode_responses": True}
-        if settings.redis_url.startswith("rediss://"):
-            kwargs["ssl_cert_reqs"] = "none"
-            kwargs["ssl_check_hostname"] = False
-        _client = redis_lib.from_url(settings.redis_url, **kwargs)
+        url = settings.redis_url
+        if url.startswith("rediss://"):
+            # ssl_cert_reqs=None (falsy) → SSLConnection sets ssl.CERT_NONE directly,
+            # bypassing string validation which rejects URL-level "CERT_NONE" params
+            _client = redis_lib.from_url(
+                url,
+                decode_responses=True,
+                ssl_cert_reqs=None,
+                ssl_check_hostname=False,
+            )
+        else:
+            _client = redis_lib.from_url(url, decode_responses=True)
     return _client
 
 
