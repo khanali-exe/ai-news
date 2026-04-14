@@ -20,48 +20,50 @@ settings = get_settings()
 
 CATEGORIES = ["models", "research", "tools", "business", "policy", "other"]
 
-SYSTEM_PROMPT = """You are a senior AI analyst writing for a high-signal AI intelligence feed read by
-developers, researchers, and tech professionals. Your job has two parts: (1) filter out noise,
-(2) write sharp, insightful summaries that go beyond restating the headline.
+SYSTEM_PROMPT = """You are a senior AI research analyst curating a high-signal feed for AI engineers,
+researchers, and founders. Your audience reads this to track real progress in AI — not tutorials,
+not marketing, not general tech.
 
-━━ REJECT (is_ai_relevant: false) ━━
-- Tutorials, how-to guides, feature walkthroughs ("Using X", "How to X", "Getting started")
-- Customer success stories, case studies, or "how Company X uses ChatGPT" articles
-- Marketing announcements: partnerships, integrations, enterprise deals with no new AI capability
-- General tech: gadgets, gaming, Linux, smartphones, social media, cloud storage
-- Crypto, blockchain, Web3
-- Earnings reports, layoffs, HR news unless directly about an AI lab's core research
-- Pure opinion, editorials, or speculation with no concrete AI development
-- Events, contests, conference announcements, award announcements
-- Workplace/society reports that mention AI in passing
-- Anything where AI is a tool being used, not the subject of advancement
+━━ HARD REJECT — set is_ai_relevant: false ━━
+These article types must NEVER pass, no exceptions:
+• Tutorials, how-to guides, walkthroughs, step-by-step instructions
+• "How Company X uses AI" — customer stories, case studies, enterprise integrations
+• Marketing copy: product announcements with no new technical capability
+• Partnership/integration announcements (e.g. "X integrates with Y")
+• General tech news: gadgets, phones, gaming, Linux, cloud storage, social media
+• Earnings reports, HR/layoff news, organizational changes
+• Events, conferences, webinars, award announcements
+• Weekly digests, newsletters, reading lists, curated link roundups
+• Opinion/commentary without concrete new AI developments
+• Anything where AI is the tool being used — not the subject of advancement
 
-━━ ACCEPT (is_ai_relevant: true) ━━
-- New or updated LLMs, multimodal models, or foundation models (actual releases/announcements)
-- Research papers, benchmark results, or capability breakthroughs with technical substance
-- New AI APIs, frameworks, SDKs, or developer platforms with new capabilities
-- AI safety, alignment, or regulation with concrete policy outcomes or research findings
-- Significant compute or chip announcements directly enabling AI progress
-- Model architecture innovations or training technique breakthroughs
-- AI agent systems, reasoning capabilities, or emergent behavior research
+━━ ACCEPT — set is_ai_relevant: true ━━
+ONLY these content types pass:
+• New model releases: LLMs, multimodal models, diffusion models, audio/video models
+• Research papers: novel architectures, training methods, capability benchmarks
+• Technical breakthroughs: new reasoning, alignment, agent, or emergent behavior findings
+• New developer tools: APIs, frameworks, SDKs with genuinely new AI capabilities
+• AI safety/policy: concrete regulation, legislation, or governance decisions
+• Hardware/compute advances directly enabling AI progress (chips, infrastructure)
+• Major AI lab strategies with direct model/capability implications (funding rounds at AI labs)
 
-━━ WRITING STYLE ━━
-Write like a sharp analyst, not a press release. Your summaries should:
-- Lead with the most surprising or important fact
-- Explain WHY this matters to the field — what does it change or signal?
-- Be direct and confident — no filler phrases like "it is worth noting" or "this could potentially"
-- Use plain English, no jargon unless necessary
+━━ WRITING RULES ━━
+• Lead with the most important fact — not the company name
+• Be specific: name the model, metric, benchmark, or method
+• Explain what changed and why it matters to the field
+• No filler: avoid "it is worth noting", "could potentially", "in conclusion"
+• Use plain English — technical terms only when essential
+• ONLY use information from the article text. Return null for missing fields.
 
-You must ONLY use facts from the article. Never invent. Return null for unsupported fields.
-
-Return a JSON object with exactly these fields:
-- is_ai_relevant: boolean
-- tl_dr: string — one punchy sentence, ≤20 words, written like a headline analyst would write
-- what_happened: string — 2-3 sentences, concrete facts, what was released/announced/discovered
-- why_it_matters: string — 2-3 sentences, sharp analyst take on the significance and implications
-- potential_use_case: string — 1-2 sentences, most impactful real-world application
-- category: one of ["models", "research", "tools", "business", "policy", "other"]
-"""
+Return a JSON object with EXACTLY these fields:
+{
+  "is_ai_relevant": boolean,
+  "tl_dr": "≤20 word punchy analyst headline — lead with the most surprising fact",
+  "what_happened": "2-3 sentences of concrete facts: what was built/released/discovered",
+  "why_it_matters": "2-3 sentences: what this changes or signals for the field",
+  "potential_use_case": "1-2 sentences: most impactful real-world application",
+  "category": "one of: models | research | tools | business | policy | other"
+}"""
 
 USER_PROMPT_TEMPLATE = """Article title: {title}
 
@@ -92,11 +94,11 @@ def _call_openai(title: str, content: str) -> dict:
                 "role": "user",
                 "content": USER_PROMPT_TEMPLATE.format(
                     title=title,
-                    content=content[:6000],  # Hard cap to control tokens
+                    content=content[:6000],
                 ),
             },
         ],
-        temperature=0.1,  # Low temperature = less hallucination
+        temperature=0.1,
         max_tokens=800,
     )
 
@@ -105,15 +107,12 @@ def _call_openai(title: str, content: str) -> dict:
 
 
 def _validate_output(data: dict) -> dict:
-    """Ensure all expected fields exist with correct types. Strip unexpected keys."""
     valid = {}
 
-    # AI relevance gate — default to True for safety, but reject if explicitly False
-    valid["is_ai_relevant"] = data.get("is_ai_relevant", True) is not False
+    valid["is_ai_relevant"] = data.get("is_ai_relevant") is True  # must be explicitly True
 
     tl_dr = data.get("tl_dr")
     if isinstance(tl_dr, str) and tl_dr.strip():
-        # Enforce word limit
         words = tl_dr.split()
         valid["tl_dr"] = " ".join(words[:20]) if len(words) > 20 else tl_dr.strip()
     else:
@@ -141,25 +140,26 @@ def process_article(
     Caches results to avoid duplicate API calls.
     """
     if not raw_content or len(raw_content.strip()) < 100:
-        logger.warning("Article %d has insufficient content, skipping AI processing", article_id)
+        logger.warning("Article %d has insufficient content, skipping", article_id)
         return None
-    content = raw_content.strip()
 
+    content = raw_content.strip()
     url_hash = _url_hash(url)
 
-    # Check cache first
     cached = get_cached_ai_output(url_hash)
     if cached:
         logger.info("Cache hit for article %d", article_id)
         return cached
 
     try:
-        raw_output = _call_openai(title, raw_content)
+        raw_output = _call_openai(title, content)
         validated = _validate_output(raw_output)
 
-        # Cache the result
         set_cached_ai_output(url_hash, validated)
-        logger.info("AI processing complete for article %d (category=%s)", article_id, validated.get("category"))
+        logger.info(
+            "AI processing complete for article %d (relevant=%s category=%s)",
+            article_id, validated.get("is_ai_relevant"), validated.get("category")
+        )
         return validated
 
     except json.JSONDecodeError as e:

@@ -1,6 +1,7 @@
 """RSS scraper — fetches articles from configured sources."""
 import hashlib
 import logging
+import re
 from datetime import datetime, timezone
 from typing import Optional
 
@@ -16,13 +17,70 @@ from app.models.scrape_log import ScrapeLog
 
 logger = logging.getLogger(__name__)
 
-FETCH_TIMEOUT = 15  # seconds
-MAX_CONTENT_CHARS = 8000  # cap raw content to avoid huge DB rows
-MAX_ENTRIES_PER_SOURCE = 30  # only process the latest N entries per scrape
+FETCH_TIMEOUT = 15
+MAX_CONTENT_CHARS = 8000
+MAX_ENTRIES_PER_SOURCE = 30
+
+# ── Keyword signals ────────────────────────────────────────────────────────────
+
+# Title must contain at least one INCLUDE signal OR pass without an EXCLUDE signal
+# If an EXCLUDE signal is found → skip immediately
+EXCLUDE_TITLE_EXACT_PREFIXES = (
+    "how to ", "using ", "working with ", "getting started",
+    "introduction to ", "guide to ", "learn to ", "tutorial:",
+    "prompting ", "personalizing ", "brainstorming with ",
+    "writing with ", "top 10 ", "top 5 ", "best ",
+    "a beginner", "beginners guide",
+)
+
+EXCLUDE_TITLE_KEYWORDS = (
+    " tutorial", " tutorials", " walkthrough", " cheat sheet",
+    "step-by-step", "for beginners", "tips and tricks",
+    "in 3 simple steps", "in 5 steps", "for sales teams",
+    "for enterprises", "case study", "how i ", "my experience",
+    " course", " courses", " certification", " bootcamp",
+    "weekly digest", "newsletter", "reading list", "curated",
+)
+
+EXCLUDE_URL_SEGMENTS = (
+    "/academy/", "/learn/", "/education/", "/tutorial/",
+    "/getting-started/", "/docs/", "/documentation/",
+    "/course/", "/bootcamp/", "/certification/",
+)
+
+# Strong news signals — presence of any of these in title/content is a good sign
+NEWS_TITLE_SIGNALS = (
+    "announces", "announce", "announced",
+    "introduces", "introduce", "introduced",
+    "releases", "release", "released",
+    "launches", "launch", "launched",
+    "unveils", "unveil", "unveiled",
+    "researchers", "research", "developed",
+    "new model", "new paper", "new study",
+    "benchmark", "outperforms", "breakthrough",
+    "published", "open-source", "open source",
+    "funding", "raises", "acquires",
+    "regulation", "policy", "ban", "law",
+    "discovered", "finds", "found",
+)
+
+
+def _is_news_title(title: str) -> bool:
+    """Return True if the title looks like a news article, not a tutorial/guide."""
+    t = title.lower()
+
+    # Hard reject on exclude prefixes
+    if any(t.startswith(p) for p in EXCLUDE_TITLE_EXACT_PREFIXES):
+        return False
+
+    # Hard reject on exclude keywords
+    if any(k in t for k in EXCLUDE_TITLE_KEYWORDS):
+        return False
+
+    return True
 
 
 def _fetch_page(url: str) -> Optional[BeautifulSoup]:
-    """Fetch a page and return its BeautifulSoup, or None on failure."""
     try:
         resp = httpx.get(url, timeout=FETCH_TIMEOUT, follow_redirects=True,
                          headers={"User-Agent": "Mozilla/5.0 (compatible; AINewsBot/1.0)"})
@@ -34,7 +92,6 @@ def _fetch_page(url: str) -> Optional[BeautifulSoup]:
 
 
 def _extract_og_image(soup: BeautifulSoup) -> Optional[str]:
-    """Extract og:image or twitter:image from a parsed page."""
     for attr, name in [("property", "og:image"), ("name", "twitter:image")]:
         tag = soup.find("meta", attrs={attr: name})
         if tag and tag.get("content", "").startswith("http"):
@@ -43,17 +100,12 @@ def _extract_og_image(soup: BeautifulSoup) -> Optional[str]:
 
 
 def _fetch_full_text(url: str) -> tuple[Optional[str], Optional[str]]:
-    """Fetch article page, return (text_content, image_url)."""
     soup = _fetch_page(url)
     if not soup:
         return None, None
-
     image_url = _extract_og_image(soup)
-
-    # Remove nav, ads, footers
     for tag in soup(["nav", "footer", "header", "aside", "script", "style", "noscript"]):
         tag.decompose()
-
     text = soup.get_text(separator="\n", strip=True)
     return text[:MAX_CONTENT_CHARS], image_url
 
@@ -76,10 +128,6 @@ def _parse_date(entry) -> Optional[datetime]:
 
 
 def scrape_source(source: Source, db: Session) -> dict:
-    """
-    Fetch RSS feed for a single source.
-    Returns {"found": int, "new": int, "error": str|None}.
-    """
     log = ScrapeLog(source_id=source.id)
     db.add(log)
     db.commit()
@@ -93,6 +141,7 @@ def scrape_source(source: Source, db: Session) -> dict:
         entries = feed.entries[:MAX_ENTRIES_PER_SOURCE]
         found = len(entries)
         new_count = 0
+        skipped = 0
 
         for entry in entries:
             url = entry.get("link", "").strip()
@@ -101,38 +150,19 @@ def scrape_source(source: Source, db: Session) -> dict:
             if not url or not title:
                 continue
 
-            # Pre-filter: skip known junk URL patterns
-            _url_lower = url.lower()
-            _skip_url_segments = (
-                "/academy/", "/learn/", "/education/", "/tutorial/",
-                "/getting-started/", "/docs/", "/documentation/",
-            )
-            if any(seg in _url_lower for seg in _skip_url_segments):
-                logger.debug("Skipping academy/docs URL: %s", url)
+            # ── URL filter ────────────────────────────────────────────────────
+            if any(seg in url.lower() for seg in EXCLUDE_URL_SEGMENTS):
+                logger.debug("Skipping blocked URL pattern: %s", url)
+                skipped += 1
                 continue
 
-            # Pre-filter: skip tutorial/guide/documentation titles
-            _title_lower = title.lower()
-            _skip_prefixes = (
-                "how to ", "using ", "working with ", "getting started",
-                "introduction to ", "guide to ", "learn to ", "tutorial:",
-                "prompting ", "personalizing ", "creating images with",
-                "brainstorming with ", "writing with ", "applications of ai at",
-                "healthcare", "financial services", "skills", "sales",
-                "customer success", "managers", "operations", "marketing",
-                "data analysis", "image generation",
-            )
-            _skip_keywords = (
-                " tutorial", " walkthrough", " cheat sheet", "step-by-step",
-                "for beginners", "tips and tricks", "in 3 simple steps",
-                "for sales teams", "for enterprises", "case study",
-            )
-            if any(_title_lower.startswith(p) for p in _skip_prefixes) or \
-               any(k in _title_lower for k in _skip_keywords):
-                logger.debug("Skipping non-news article: %s", title)
+            # ── Title filter ──────────────────────────────────────────────────
+            if not _is_news_title(title):
+                logger.debug("Skipping non-news title: %s", title)
+                skipped += 1
                 continue
 
-            # Skip if already in DB (check both url and slug)
+            # ── Duplicate check ───────────────────────────────────────────────
             slug = _make_slug(title, url)
             exists = db.query(Article.id).filter(
                 (Article.url == url) | (Article.slug == slug)
@@ -140,7 +170,7 @@ def scrape_source(source: Source, db: Session) -> dict:
             if exists:
                 continue
 
-            # Try to get image from RSS media tags first
+            # ── Image from RSS media tags ─────────────────────────────────────
             image_url: Optional[str] = None
             for media in (entry.get("media_content") or entry.get("media_thumbnail") or []):
                 u = media.get("url", "")
@@ -153,10 +183,10 @@ def scrape_source(source: Source, db: Session) -> dict:
                     image_url = u
                     break
 
-            # Get content — prefer feed summary, fall back to full page fetch
+            # ── Content ───────────────────────────────────────────────────────
             raw_content = (
                 entry.get("summary", "")
-                or entry.get("content", [{}])[0].get("value", "")
+                or (entry.get("content") or [{}])[0].get("value", "")
             )
             if len(raw_content) < 200 or not image_url:
                 fetched_text, fetched_image = _fetch_full_text(url)
@@ -178,7 +208,7 @@ def scrape_source(source: Source, db: Session) -> dict:
             )
             db.add(article)
             try:
-                db.flush()  # catch constraint violations per-article
+                db.flush()
                 new_count += 1
             except Exception as flush_err:
                 db.rollback()
@@ -192,7 +222,7 @@ def scrape_source(source: Source, db: Session) -> dict:
         log.status = "success"
         db.commit()
 
-        logger.info("Scraped %s: %d found, %d new", source.name, found, new_count)
+        logger.info("Scraped %s: %d found, %d new, %d skipped", source.name, found, new_count, skipped)
         return {"found": found, "new": new_count, "error": None}
 
     except Exception as e:
@@ -206,7 +236,6 @@ def scrape_source(source: Source, db: Session) -> dict:
 
 
 def scrape_all_sources(db: Session) -> list[dict]:
-    """Iterate all active sources and scrape each."""
     sources = db.query(Source).filter(Source.is_active == True).all()
     results = []
     for source in sources:
