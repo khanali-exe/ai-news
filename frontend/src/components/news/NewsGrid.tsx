@@ -73,8 +73,8 @@ export function NewsGrid({ filters, onMutateReady, onArticlesChange, focusedSlug
     return (
       <div className="flex flex-col items-center gap-3 py-28 text-center fade-up">
         <WifiOff className="h-10 w-10 text-zinc-700" />
-        <p className="text-sm font-medium text-zinc-400">Cannot reach the backend</p>
-        <p className="text-xs" style={{ color: "var(--muted)" }}>Make sure Docker is running.</p>
+        <p className="text-sm font-medium text-zinc-400">Unable to load articles</p>
+        <p className="text-xs" style={{ color: "var(--muted)" }}>Check your connection or try again shortly.</p>
       </div>
     );
   }

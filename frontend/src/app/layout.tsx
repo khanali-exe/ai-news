@@ -7,11 +7,12 @@ import { Footer } from "@/components/layout/Footer";
 const inter = Inter({ subsets: ["latin"], variable: "--font-inter", display: "swap" });
 
 export const metadata: Metadata = {
-  title: { default: "AI Intelligence Hub", template: "%s — AI Intelligence Hub" },
-  description: "Verified AI news — collected from trusted sources, processed and fact-checked automatically.",
+  title: { default: "AI Simplest", template: "%s — AI Simplest" },
+  description: "High-signal AI news — verified updates on models, research, and tools from OpenAI, Anthropic, DeepMind, and more.",
+  robots: { index: true, follow: true },
   openGraph: {
-    title: "AI Intelligence Hub",
-    description: "Verified AI news, automatically processed and fact-checked.",
+    title: "AI Simplest",
+    description: "High-signal AI news — verified updates on models, research, and tools.",
     type: "website",
   },
 };
