@@ -76,13 +76,15 @@ def list_articles(
     query = (
         db.query(Article)
         .options(joinedload(Article.source))
-        .filter(Article.is_published == True, Article.verification_status == "verified")
+        .filter(
+            Article.is_published == True,
+            Article.verification_status.in_(["verified", "confirmed"]),
+        )
     )
 
     if category:
         query = query.filter(Article.category == category)
-    if verification_status:
-        query = query.filter(Article.verification_status == verification_status)
+    # verification_status param is ignored — the base query already enforces verified|confirmed
     if source_id:
         query = query.filter(Article.source_id == source_id)
     if date_from:
@@ -132,7 +134,11 @@ def list_categories(db: Session = Depends(get_db)):
     from sqlalchemy import func
     rows = (
         db.query(Article.category, func.count(Article.id).label("count"))
-        .filter(Article.is_published == True, Article.category.isnot(None))
+        .filter(
+            Article.is_published == True,
+            Article.verification_status.in_(["verified", "confirmed"]),
+            Article.category.isnot(None),
+        )
         .group_by(Article.category)
         .all()
     )
@@ -143,11 +149,16 @@ def list_categories(db: Session = Depends(get_db)):
 def public_stats(db: Session = Depends(get_db)):
     from sqlalchemy import func
     total = db.query(func.count(Article.id)).filter(
-        Article.is_published == True, Article.verification_status == "verified"
+        Article.is_published == True,
+        Article.verification_status.in_(["verified", "confirmed"]),
     ).scalar()
     by_cat = (
         db.query(Article.category, func.count(Article.id))
-        .filter(Article.is_published == True, Article.verification_status == "verified", Article.category.isnot(None))
+        .filter(
+            Article.is_published == True,
+            Article.verification_status.in_(["verified", "confirmed"]),
+            Article.category.isnot(None),
+        )
         .group_by(Article.category)
         .all()
     )
@@ -168,7 +179,7 @@ def get_trending(db: Session = Depends(get_db)):
         .options(joinedload(Article.source))
         .filter(
             Article.is_published == True,
-            Article.verification_status == "verified",
+            Article.verification_status.in_(["verified", "confirmed"]),
             Article.published_at >= since,
         )
         .order_by(Article.published_at.desc())

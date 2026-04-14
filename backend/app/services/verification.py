@@ -39,23 +39,9 @@ def assign_verification_status(article: Article, db: Session) -> str:
     if source.trust_tier == "primary":
         return "verified"
 
-    # For secondary sources: check if another source covers the same story
-    # We match by looking for articles with the same domain in the title
-    # (simple heuristic — production systems would use title embedding similarity)
-    similar = (
-        db.query(Article)
-        .join(Source, Article.source_id == Source.id)
-        .filter(
-            Article.id != article.id,
-            Article.title.ilike(f"%{_extract_key_phrase(article.title)}%"),
-        )
-        .count()
-    )
-
-    if similar >= 1:
-        return "confirmed"
-
-    return "unverified"
+    # Secondary sources: articles that pass AI relevance filtering are confirmed
+    # The AI processor is the quality gate — if it passes, we publish it
+    return "confirmed"
 
 
 def _extract_key_phrase(title: str) -> str:

@@ -148,3 +148,50 @@ def process_pending_articles_task():
         return {"queued": len(pending)}
     finally:
         db.close()
+
+
+@celery_app.task(name="app.tasks.process_task.republish_secondary_sources_task")
+def republish_secondary_sources_task():
+    """
+    One-time fix: promote secondary-source articles that passed AI filtering
+    from unverified/unpublished to confirmed/published.
+    Safe to run multiple times (idempotent).
+    """
+    from app.models.source import Source
+    from app.services.cache import invalidate_article, cache_delete_pattern
+
+    db = SessionLocal()
+    try:
+        # Find done articles from secondary sources that are unverified and not published
+        secondary_source_ids = [
+            row.id for row in
+            db.query(Source.id).filter(Source.trust_tier == "secondary").all()
+        ]
+        if not secondary_source_ids:
+            return {"updated": 0}
+
+        articles = (
+            db.query(Article)
+            .filter(
+                Article.source_id.in_(secondary_source_ids),
+                Article.processing_status == "done",
+                Article.verification_status == "unverified",
+                Article.is_published == False,
+                Article.tl_dr.isnot(None),  # has AI analysis (not rejected)
+            )
+            .all()
+        )
+
+        updated = 0
+        for article in articles:
+            article.verification_status = "confirmed"
+            article.is_published = True
+            invalidate_article(article.id)
+            updated += 1
+
+        db.commit()
+        cache_delete_pattern("article_list:*")
+        logger.info("Republished %d secondary source articles", updated)
+        return {"updated": updated}
+    finally:
+        db.close()

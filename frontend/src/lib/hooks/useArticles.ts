@@ -6,7 +6,6 @@ import type { FilterState, PaginatedArticles } from "@/types";
 
 export function useArticles(filters: FilterState & { maxId?: number | null }) {
   const params = new URLSearchParams();
-  params.set("verification_status", "verified");
   if (filters.category)   params.set("category", filters.category);
   if (filters.search)     params.set("search", filters.search);
   if (filters.dateFilter) params.set("date_from", filters.dateFilter);
