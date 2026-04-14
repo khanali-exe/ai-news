@@ -8,7 +8,7 @@ from app.models.article import Article
 from app.services.ai_processor import process_article
 from app.services.fact_checker import fact_check_article
 from app.services.verification import assign_verification_status
-from app.services.cache import invalidate_article
+from app.services.cache import invalidate_article, invalidate_all_ai_outputs
 
 logger = logging.getLogger(__name__)
 

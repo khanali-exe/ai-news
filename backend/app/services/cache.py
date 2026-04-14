@@ -107,3 +107,13 @@ def get_cached_ai_output(url_hash: str) -> Optional[dict]:
 def set_cached_ai_output(url_hash: str, data: dict, ttl: int = 604800) -> None:
     """Cache AI outputs for 7 days — they never change for a given article."""
     cache_set(_key_ai_output(url_hash), data, ttl)
+
+
+def invalidate_ai_output(url_hash: str) -> None:
+    """Force re-processing by clearing cached AI output for a URL."""
+    cache_delete(_key_ai_output(url_hash))
+
+
+def invalidate_all_ai_outputs() -> None:
+    """Clear all cached AI outputs — use when prompt changes require reprocessing."""
+    cache_delete_pattern("ai_output:*")

@@ -118,14 +118,18 @@ def scrape_source(source: Source, db: Session) -> dict:
                 "introduction to ", "guide to ", "learn to ", "tutorial:",
                 "prompting ", "personalizing ", "creating images with",
                 "brainstorming with ", "writing with ", "applications of ai at",
+                "healthcare", "financial services", "skills", "sales",
+                "customer success", "managers", "operations", "marketing",
+                "data analysis", "image generation",
             )
             _skip_keywords = (
                 " tutorial", " walkthrough", " cheat sheet", "step-by-step",
-                "for beginners", "tips and tricks",
+                "for beginners", "tips and tricks", "in 3 simple steps",
+                "for sales teams", "for enterprises", "case study",
             )
             if any(_title_lower.startswith(p) for p in _skip_prefixes) or \
                any(k in _title_lower for k in _skip_keywords):
-                logger.debug("Skipping tutorial-style article: %s", title)
+                logger.debug("Skipping non-news article: %s", title)
                 continue
 
             # Skip if already in DB (check both url and slug)
