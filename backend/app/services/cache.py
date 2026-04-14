@@ -2,6 +2,7 @@
 import json
 import logging
 from typing import Any, Optional
+from urllib.parse import urlparse, urlencode, parse_qs, urlunparse
 
 import redis as redis_lib
 
@@ -14,15 +15,24 @@ settings = get_settings()
 _client: Optional[redis_lib.Redis] = None
 
 
+def _clean_redis_url(url: str) -> str:
+    """Strip SSL query params from URL — redis-py 5.x validates them before kwargs apply."""
+    parsed = urlparse(url)
+    params = {k: v[0] for k, v in parse_qs(parsed.query, keep_blank_values=True).items()
+              if k not in ("ssl_cert_reqs", "ssl_check_hostname")}
+    return urlunparse(parsed._replace(query=urlencode(params)))
+
+
 def get_redis() -> redis_lib.Redis:
     global _client
     if _client is None:
         url = settings.redis_url
         if url.startswith("rediss://"):
-            # ssl_cert_reqs=None (falsy) → SSLConnection sets ssl.CERT_NONE directly,
-            # bypassing string validation which rejects URL-level "CERT_NONE" params
+            # Strip any ssl_cert_reqs from URL query string (may contain invalid "CERT_NONE")
+            # then pass ssl_cert_reqs=None via kwargs so SSLConnection skips string validation
+            clean_url = _clean_redis_url(url)
             _client = redis_lib.from_url(
-                url,
+                clean_url,
                 decode_responses=True,
                 ssl_cert_reqs=None,
                 ssl_check_hostname=False,
