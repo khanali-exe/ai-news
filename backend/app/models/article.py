@@ -18,6 +18,7 @@ class Article(Base):
     scraped_at = Column(DateTime(timezone=True), server_default=func.now())
 
     # AI fields
+    display_title = Column(Text)          # paraphrased title — shown instead of raw scraped title
     tl_dr = Column(String(200))
     what_happened = Column(Text)
     why_it_matters = Column(Text)

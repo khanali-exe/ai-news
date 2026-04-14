@@ -27,6 +27,7 @@ CREATE TABLE IF NOT EXISTS articles (
     scraped_at          TIMESTAMPTZ NOT NULL DEFAULT NOW(),
 
     -- AI-generated fields (NULL until processed)
+    display_title       TEXT,
     tl_dr               VARCHAR(200),
     what_happened       TEXT,
     why_it_matters      TEXT,

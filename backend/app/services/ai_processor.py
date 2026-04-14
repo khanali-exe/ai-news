@@ -58,6 +58,7 @@ ONLY these content types pass:
 Return a JSON object with EXACTLY these fields:
 {
   "is_ai_relevant": boolean,
+  "display_title": "Rewrite the article title in your own words — same meaning, fresh phrasing. Max 15 words. No quotes around it.",
   "tl_dr": "≤20 word punchy analyst headline — lead with the most surprising fact",
   "what_happened": "2-3 sentences of concrete facts: what was built/released/discovered",
   "why_it_matters": "2-3 sentences: what this changes or signals for the field",
@@ -110,6 +111,13 @@ def _validate_output(data: dict) -> dict:
     valid = {}
 
     valid["is_ai_relevant"] = data.get("is_ai_relevant") is True  # must be explicitly True
+
+    dt = data.get("display_title")
+    if isinstance(dt, str) and dt.strip():
+        words = dt.split()
+        valid["display_title"] = " ".join(words[:15]) if len(words) > 15 else dt.strip()
+    else:
+        valid["display_title"] = None
 
     tl_dr = data.get("tl_dr")
     if isinstance(tl_dr, str) and tl_dr.strip():

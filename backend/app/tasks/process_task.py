@@ -84,6 +84,7 @@ def process_article_task(self, article_id: int):
             return
 
         # ── Step 3: Write AI fields ───────────────────────────────────────────
+        article.display_title = analysis.get("display_title")
         article.tl_dr = analysis.get("tl_dr")
         article.what_happened = analysis.get("what_happened")
         article.why_it_matters = analysis.get("why_it_matters")

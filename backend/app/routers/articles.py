@@ -30,7 +30,7 @@ def _article_to_dict(article: Article, full: bool = False) -> dict:
 
     base = {
         "id": article.id,
-        "title": article.title,
+        "title": article.display_title or article.title,
         "slug": article.slug,
         "url": article.url,
         "tl_dr": article.tl_dr,
