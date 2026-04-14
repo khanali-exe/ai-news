@@ -51,10 +51,11 @@ def process_article_task(self, article_id: int):
         )
 
         if not analysis:
-            article.processing_status = "failed"
-            article.processing_error = "AI processing returned no output"
+            article.processing_status = "rejected"
+            article.processing_error = "Insufficient content"
+            article.is_published = False
             db.commit()
-            logger.warning("AI processing returned nothing for article %d", article_id)
+            logger.warning("AI processing returned nothing for article %d — rejected", article_id)
             return
 
         # ── Step 1b: AI relevance gate ────────────────────────────────────────
