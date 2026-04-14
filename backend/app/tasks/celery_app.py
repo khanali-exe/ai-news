@@ -48,7 +48,7 @@ celery_app.conf.update(
         },
         "process-pending-articles": {
             "task": "app.tasks.process_task.process_pending_articles_task",
-            "schedule": crontab(minute="*/5"),
+            "schedule": crontab(minute=f"*/{settings.scrape_interval_minutes}"),
         },
         "generate-daily-briefing": {
             "task": "app.tasks.briefing_task.generate_daily_briefing_task",
