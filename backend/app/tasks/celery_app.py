@@ -7,7 +7,7 @@ settings = get_settings()
 celery_app = Celery(
     "ainews",
     broker=settings.redis_url,
-    backend=settings.redis_url,
+    backend=None,   # disable result backend — we never read results, saves ~50% Redis commands
     include=[
         "app.tasks.scrape_task",
         "app.tasks.process_task",
@@ -30,8 +30,8 @@ celery_app.conf.update(
     redis_backend_use_ssl={"ssl_cert_reqs": __import__("ssl").CERT_NONE} if _redis_ssl else None,
     task_acks_late=True,
     worker_prefetch_multiplier=1,
-    task_track_started=True,
-    result_expires=3600,
+    task_ignore_result=True,     # don't store results — saves reads+writes per task
+    task_track_started=False,    # don't write "started" state to backend
 
     # Reduce Redis command volume for Upstash free tier
     worker_heartbeat_interval=60,       # heartbeat every 60s (default: 2s) — 30x fewer commands
