@@ -32,14 +32,16 @@ celery_app.conf.update(
     task_ignore_result=True,          # don't store results in Redis
     task_track_started=False,         # don't write "started" state
     task_send_sent_event=False,       # don't publish task-sent events to Redis
-    worker_send_task_events=False,    # disable all task event publishing — biggest Redis saver
+    worker_send_task_events=False,    # disable all task event publishing (stops PUBLISH commands)
+    event_queue_expires=60,           # expire event queues quickly if any slip through
 
     # Reduce Redis command volume for Upstash free tier
-    worker_heartbeat_interval=120,    # heartbeat every 2 min (was 60s)
-    worker_proc_alive_timeout=300,    # 5 min timeout before marking dead
-    broker_heartbeat=0,               # disable broker-level heartbeat entirely (Redis doesn't need it)
+    worker_heartbeat_interval=300,    # heartbeat every 5 min
+    worker_proc_alive_timeout=600,    # 10 min timeout before marking dead
+    broker_heartbeat=0,               # disable broker-level heartbeat (Redis doesn't need it)
     broker_transport_options={
-        "visibility_timeout": 3600,   # 1 hour — how long before unacked task is requeued
+        "visibility_timeout": 3600,   # 1 hour task requeue timeout
+        "polling_interval": 5.0,      # BRPOP poll every 5s instead of 0.1s — 50x fewer BRPOP commands
     },
 
     beat_schedule={

@@ -17,7 +17,7 @@ services:
       RESEND_API_KEY: ${RESEND_API_KEY}
       EMAIL_FROM: ${EMAIL_FROM}
       EMAIL_SITE_URL: ${EMAIL_SITE_URL}
-    command: celery -A app.tasks.celery_app worker --loglevel=info --concurrency=2
+    command: celery -A app.tasks.celery_app worker --loglevel=info --concurrency=2 --without-gossip --without-mingle --without-heartbeat
 
   # ─── Celery Beat (Scheduler) ──────────────────────────────────────────────────
   celery_beat:
