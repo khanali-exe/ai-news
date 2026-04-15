@@ -27,19 +27,20 @@ celery_app.conf.update(
     timezone="UTC",
     enable_utc=True,
     broker_use_ssl={"ssl_cert_reqs": __import__("ssl").CERT_NONE} if _redis_ssl else None,
-    redis_backend_use_ssl={"ssl_cert_reqs": __import__("ssl").CERT_NONE} if _redis_ssl else None,
     task_acks_late=True,
     worker_prefetch_multiplier=1,
-    task_ignore_result=True,     # don't store results — saves reads+writes per task
-    task_track_started=False,    # don't write "started" state to backend
+    task_ignore_result=True,          # don't store results in Redis
+    task_track_started=False,         # don't write "started" state
+    task_send_sent_event=False,       # don't publish task-sent events to Redis
+    worker_send_task_events=False,    # disable all task event publishing — biggest Redis saver
 
     # Reduce Redis command volume for Upstash free tier
-    worker_heartbeat_interval=60,       # heartbeat every 60s (default: 2s) — 30x fewer commands
-    worker_proc_alive_timeout=120,      # allow 2 missed heartbeats before marking dead
-    broker_heartbeat=60,                # broker heartbeat every 60s (default: 2s)
-    broker_heartbeat_checkrate=2,       # check every 2 intervals = 120s
-    result_chord_retry_interval=60,     # chord polling interval
-    worker_cancel_long_running_tasks_on_connection_loss=True,
+    worker_heartbeat_interval=120,    # heartbeat every 2 min (was 60s)
+    worker_proc_alive_timeout=300,    # 5 min timeout before marking dead
+    broker_heartbeat=0,               # disable broker-level heartbeat entirely (Redis doesn't need it)
+    broker_transport_options={
+        "visibility_timeout": 3600,   # 1 hour — how long before unacked task is requeued
+    },
 
     beat_schedule={
         "scrape-all-sources": {
