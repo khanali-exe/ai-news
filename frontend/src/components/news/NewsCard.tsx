@@ -47,11 +47,11 @@ export function NewsCard({ article, featured = false, focused = false, batchInde
 
       <div className="flex flex-1 flex-col p-5">
         {/* Top row */}
-        <div className="mb-3 flex items-center justify-between gap-2">
-          <div className="flex items-center gap-1.5">
+        <div className="mb-3 flex items-center justify-between gap-1.5 min-w-0">
+          <div className="flex items-center gap-1 min-w-0 overflow-hidden">
             {article.source?.trust_tier === "primary" && (
               <span
-                className="rounded-full px-2 py-0.5 text-[10px] font-semibold text-brand-300"
+                className="shrink-0 rounded-full px-1.5 py-0.5 text-[9px] font-semibold text-brand-300 whitespace-nowrap"
                 style={{ background: "rgba(14,165,233,0.1)", border: "1px solid rgba(14,165,233,0.2)" }}
               >
                 ● Primary
