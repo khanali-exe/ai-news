@@ -4,6 +4,7 @@ import Image from "next/image";
 import { useState, useRef, useEffect } from "react";
 import { Search, X, Bookmark } from "lucide-react";
 import { useRouter } from "next/navigation";
+import { SignInButton, UserButton, useUser } from "@clerk/nextjs";
 import { ThemeToggle } from "@/components/ui/ThemeToggle";
 import { useBookmarks } from "@/hooks/useBookmarks";
 
@@ -13,6 +14,7 @@ export function Header() {
   const router = useRouter();
   const inputRef = useRef<HTMLInputElement>(null);
   const { bookmarks } = useBookmarks();
+  const { isSignedIn } = useUser();
 
   useEffect(() => {
     function onKeyDown(e: KeyboardEvent) {
@@ -118,6 +120,24 @@ export function Header() {
               )}
             </Link>
             <ThemeToggle />
+            {isSignedIn ? (
+              <UserButton
+                appearance={{
+                  elements: {
+                    avatarBox: "h-7 w-7",
+                  },
+                }}
+              />
+            ) : (
+              <SignInButton mode="modal">
+                <button
+                  className="rounded-lg px-3 py-1.5 text-xs font-semibold transition-all hover:opacity-90"
+                  style={{ background: "rgba(14,165,233,0.15)", border: "1px solid rgba(14,165,233,0.3)", color: "#7dd3fc" }}
+                >
+                  Sign in
+                </button>
+              </SignInButton>
+            )}
           </div>
         </nav>
       </div>
@@ -157,6 +177,16 @@ export function Header() {
               )}
             </Link>
             <ThemeToggle />
+            {isSignedIn ? (
+              <UserButton appearance={{ elements: { avatarBox: "h-7 w-7" } }} />
+            ) : (
+              <SignInButton mode="modal">
+                <button className="rounded-lg px-3 py-1.5 text-xs font-semibold"
+                  style={{ background: "rgba(14,165,233,0.15)", border: "1px solid rgba(14,165,233,0.3)", color: "#7dd3fc" }}>
+                  Sign in
+                </button>
+              </SignInButton>
+            )}
           </div>
         </div>
       )}
