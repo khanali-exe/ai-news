@@ -62,6 +62,7 @@ export default async function ArticlePage({ params }: Props) {
   const theme = CAT_THEME[cat] ?? CAT_THEME.other;
 
   return (
+    <>
     <div className="mx-auto max-w-2xl">
       <ReadingProgress accentColor={theme.accent} />
       <BackToTop />
@@ -218,12 +219,15 @@ export default async function ArticlePage({ params }: Props) {
           Processed {new Date(article.processed_at).toLocaleString()}
         </p>
       )}
-
-      {/* Related articles */}
-      {article.category && (
-        <RelatedArticles category={article.category} currentSlug={article.slug} />
-      )}
     </div>
+
+    {/* Related articles — wider container so cards aren't squeezed on laptop */}
+    {article.category && (
+      <div className="mx-auto max-w-5xl">
+        <RelatedArticles category={article.category} currentSlug={article.slug} />
+      </div>
+    )}
+    </>
   );
 }
 
