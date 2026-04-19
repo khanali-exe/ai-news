@@ -4,7 +4,7 @@ import { useUser } from "@clerk/nextjs";
 import type { BookmarkedArticle, ArticleList } from "@/types";
 
 const LS_KEY = "ainews_bookmarks";
-const LS_EVENT = "ainews_bookmarks_change";
+const SYNC_EVENT = "ainews_bookmarks_sync";
 
 function readLocalStorage(): BookmarkedArticle[] {
   if (typeof window === "undefined") return [];
@@ -12,9 +12,8 @@ function readLocalStorage(): BookmarkedArticle[] {
   catch { return []; }
 }
 
-function writeLocalStorage(items: BookmarkedArticle[]) {
-  localStorage.setItem(LS_KEY, JSON.stringify(items));
-  window.dispatchEvent(new CustomEvent(LS_EVENT, { detail: items }));
+function broadcast(items: BookmarkedArticle[]) {
+  window.dispatchEvent(new CustomEvent(SYNC_EVENT, { detail: items }));
 }
 
 export function useBookmarks() {
@@ -39,28 +38,30 @@ export function useBookmarks() {
         user.update({ unsafeMetadata: { ...user.unsafeMetadata, bookmarks: merged } });
         localStorage.removeItem(LS_KEY);
         setBookmarks(merged);
+        broadcast(merged);
       } else {
         setBookmarks(clerkBookmarks);
+        broadcast(clerkBookmarks);
       }
     } else {
-      // Not signed in — use localStorage, and listen for cross-tab changes
-      setBookmarks(readLocalStorage());
+      const local = readLocalStorage();
+      setBookmarks(local);
+      broadcast(local);
     }
   }, [isLoaded, isSignedIn, user?.id]); // eslint-disable-line react-hooks/exhaustive-deps
 
-  // Cross-tab sync for localStorage (signed-out only)
+  // Sync all hook instances on the same page + cross-tab for signed-out
   useEffect(() => {
-    if (isSignedIn) return;
-    function onCustom(e: Event) {
+    function onSync(e: Event) {
       setBookmarks((e as CustomEvent<BookmarkedArticle[]>).detail);
     }
     function onStorage(e: StorageEvent) {
-      if (e.key === LS_KEY) setBookmarks(readLocalStorage());
+      if (!isSignedIn && e.key === LS_KEY) setBookmarks(readLocalStorage());
     }
-    window.addEventListener(LS_EVENT, onCustom);
+    window.addEventListener(SYNC_EVENT, onSync);
     window.addEventListener("storage", onStorage);
     return () => {
-      window.removeEventListener(LS_EVENT, onCustom);
+      window.removeEventListener(SYNC_EVENT, onSync);
       window.removeEventListener("storage", onStorage);
     };
   }, [isSignedIn]);
@@ -90,11 +91,12 @@ export function useBookmarks() {
           ];
 
       setBookmarks(next);
+      broadcast(next);
 
       if (isSignedIn && user) {
         await user.update({ unsafeMetadata: { ...user.unsafeMetadata, bookmarks: next } });
       } else {
-        writeLocalStorage(next);
+        localStorage.setItem(LS_KEY, JSON.stringify(next));
       }
     },
     [bookmarks, isSignedIn, user]
@@ -104,10 +106,11 @@ export function useBookmarks() {
     async (slug: string) => {
       const next = bookmarks.filter((b) => b.slug !== slug);
       setBookmarks(next);
+      broadcast(next);
       if (isSignedIn && user) {
         await user.update({ unsafeMetadata: { ...user.unsafeMetadata, bookmarks: next } });
       } else {
-        writeLocalStorage(next);
+        localStorage.setItem(LS_KEY, JSON.stringify(next));
       }
     },
     [bookmarks, isSignedIn, user]
