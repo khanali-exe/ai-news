@@ -99,6 +99,29 @@ export function Header() {
 
         {/* Right nav */}
         <nav className="ml-auto flex items-center gap-1">
+          {/* Mobile-only: bookmark badge + auth always visible */}
+          <div className="flex items-center gap-1 sm:hidden">
+            <Link href="/saved" className="relative flex items-center justify-center rounded-lg p-2 text-zinc-600 hover:text-zinc-300 transition-colors">
+              <Bookmark className="h-4 w-4" />
+              {bookmarks.length > 0 && (
+                <span className="absolute -right-0.5 -top-0.5 flex h-4 min-w-4 items-center justify-center rounded-full px-1 text-[9px] font-bold text-white"
+                      style={{ background: "rgba(14,165,233,0.9)" }}>
+                  {bookmarks.length}
+                </span>
+              )}
+            </Link>
+            {isSignedIn ? (
+              <UserButton appearance={{ elements: { avatarBox: "h-7 w-7" } }} />
+            ) : (
+              <SignInButton mode="modal">
+                <button className="rounded-lg px-2.5 py-1.5 text-xs font-semibold"
+                  style={{ background: "rgba(14,165,233,0.15)", border: "1px solid rgba(14,165,233,0.3)", color: "#7dd3fc" }}>
+                  Sign in
+                </button>
+              </SignInButton>
+            )}
+          </div>
+
           <button
             className="rounded-lg p-2 text-zinc-600 hover:text-zinc-300 sm:hidden transition-colors"
             onClick={() => setMobileOpen(!mobileOpen)}
