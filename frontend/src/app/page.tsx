@@ -7,6 +7,7 @@ import { FilterBar } from "@/components/filters/FilterBar";
 import { StatsBar } from "@/components/news/StatsBar";
 import { TrendingSection } from "@/components/news/TrendingSection";
 import { NewArticlesBanner } from "@/components/news/NewArticlesBanner";
+import { SubscribeButton } from "@/components/ui/SubscribeButton";
 import { useBookmarks } from "@/hooks/useBookmarks";
 import { API_BASE } from "@/lib/constants";
 import { swrFetcher } from "@/lib/api";
@@ -115,10 +116,11 @@ function HomeContent() {
       <NewArticlesBanner onRefresh={handleRefresh} />
 
       {/* Hero */}
-      <div className="mb-8 text-center sm:text-left">
+      <div className="mb-8 flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
         <p className="text-sm" style={{ color: "var(--muted)" }}>
           Only verified news from primary sources — OpenAI, DeepMind, Anthropic, Meta AI, and more.
         </p>
+        <SubscribeButton />
       </div>
 
       <StatsBar />
