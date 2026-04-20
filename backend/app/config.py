@@ -33,9 +33,12 @@ class Settings(BaseSettings):
     frontend_url: str = "http://localhost:3000"
     revalidate_token: str = "dev_revalidate_token"
 
+    # Clerk (backend API — for fetching subscribed users)
+    clerk_secret_key: str = ""
+
     # Email (Resend)
     resend_api_key: str = ""
-    email_from: str = "AI Intelligence Hub <digest@ainews.example.com>"
+    email_from: str = "AI Simplest <digest@aisimplest.com>"
     email_site_url: str = "http://localhost:3000"
 
 

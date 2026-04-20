@@ -41,7 +41,7 @@ def confirmation_email_html(confirm_url: str, site_url: str) -> str:
           <div style="width:28px;height:28px;background:linear-gradient(135deg,#0ea5e9,#818cf8);border-radius:8px;display:flex;align-items:center;justify-content:center;">
             <span style="color:white;font-size:14px;">⚡</span>
           </div>
-          <span style="color:#e2e2e8;font-size:14px;font-weight:600;">AI Intelligence Hub</span>
+          <span style="color:#e2e2e8;font-size:14px;font-weight:600;">AI Simplest</span>
         </div>
         <h1 style="color:#ffffff;font-size:22px;font-weight:700;margin:0 0 12px;line-height:1.3;">
           Confirm your daily digest
@@ -118,7 +118,7 @@ def digest_email_html(date_label: str, articles: list[dict], site_url: str, unsu
           <div style="display:flex;align-items:center;gap:8px;">
             <div style="width:28px;height:28px;background:linear-gradient(135deg,#0ea5e9,#818cf8);
                         border-radius:8px;text-align:center;line-height:28px;font-size:14px;">⚡</div>
-            <span style="color:#e2e2e8;font-size:14px;font-weight:600;">AI Intelligence Hub</span>
+            <span style="color:#e2e2e8;font-size:14px;font-weight:600;">AI Simplest</span>
           </div>
           <span style="color:#3a3a4e;font-size:12px;">{date_label}</span>
         </div>
@@ -147,7 +147,7 @@ def digest_email_html(date_label: str, articles: list[dict], site_url: str, unsu
         <!-- Footer -->
         <div style="border-top:1px solid #1e2028;margin-top:32px;padding-top:20px;text-align:center;">
           <p style="color:#3a3a4e;font-size:11px;margin:0;line-height:1.6;">
-            You're receiving this because you subscribed to AI Intelligence Hub daily digest.<br>
+            You're receiving this because you subscribed to AI Simplest daily digest.<br>
             <a href="{unsub_url}" style="color:#3a3a4e;">Unsubscribe</a>
           </p>
         </div>
