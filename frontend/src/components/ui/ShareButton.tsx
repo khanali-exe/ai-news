@@ -48,11 +48,11 @@ export function ShareButton({
     const url = window.location.href;
     const text = `${title}\n\n${url}`;
     const urls = {
-      x:        `https://twitter.com/intent/tweet?text=${encodeURIComponent(text)}`,
+      x:        `https://x.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`,
       linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
       whatsapp: `https://wa.me/?text=${encodeURIComponent(text)}`,
     };
-    window.open(urls[platform], "_blank", "noopener,noreferrer,width=600,height=500");
+    window.open(urls[platform], "_blank", "noopener,noreferrer");
     setOpen(false);
   }
 
