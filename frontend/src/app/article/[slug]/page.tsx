@@ -19,6 +19,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   try {
     const a = await fetchArticle(slug);
     const desc = a.tl_dr ?? a.what_happened ?? undefined;
+    const ogImage = `https://ai-news-691x.vercel.app/api/og?title=${encodeURIComponent(a.title)}&category=${encodeURIComponent(a.category ?? "")}&tl_dr=${encodeURIComponent(desc ?? "")}`;
     return {
       title: a.title,
       description: desc,
@@ -26,13 +27,15 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
         title: a.title,
         description: desc,
         type: "article",
-        siteName: "AI Intelligence Hub",
+        siteName: "AI Simplest",
         publishedTime: a.published_at ?? undefined,
+        images: [{ url: ogImage, width: 1200, height: 630 }],
       },
       twitter: {
-        card: "summary",
+        card: "summary_large_image",
         title: a.title,
         description: desc,
+        images: [ogImage],
       },
     };
   } catch {
