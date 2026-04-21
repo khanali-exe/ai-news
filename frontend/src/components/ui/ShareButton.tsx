@@ -46,11 +46,12 @@ export function ShareButton({
 
   function share(platform: "x" | "linkedin" | "whatsapp") {
     const url = window.location.href;
-    const text = `${title}\n\n${url}`;
+    const xText = `🤖 ${title}\n\nvia @aisimplest — verified AI news, no noise\n`;
+    const waText = `${title}\n\n${url}\n\n— AI Simplest: verified AI news daily`;
     const urls = {
-      x:        `https://x.com/intent/tweet?text=${encodeURIComponent(title)}&url=${encodeURIComponent(url)}`,
+      x:        `https://x.com/intent/tweet?text=${encodeURIComponent(xText)}&url=${encodeURIComponent(url)}`,
       linkedin: `https://www.linkedin.com/sharing/share-offsite/?url=${encodeURIComponent(url)}`,
-      whatsapp: `https://wa.me/?text=${encodeURIComponent(text)}`,
+      whatsapp: `https://wa.me/?text=${encodeURIComponent(waText)}`,
     };
     window.open(urls[platform], "_blank", "noopener,noreferrer");
     setOpen(false);
