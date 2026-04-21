@@ -41,5 +41,9 @@ class Article(Base):
     # Display flag
     is_published = Column(Boolean, nullable=False, default=False)
 
+    # X (Twitter) auto-post
+    x_posted = Column(Boolean, nullable=False, default=False)
+    x_posted_at = Column(DateTime(timezone=True))
+
     # Relationship
     source = relationship("Source", lazy="select")

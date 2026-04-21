@@ -105,6 +105,11 @@ def process_article_task(self, article_id: int):
         # Invalidate cached versions of this article
         invalidate_article(article_id)
 
+        # Auto-post to X if published
+        if article.is_published:
+            from app.tasks.x_post_task import post_article_to_x
+            post_article_to_x.delay(article_id)
+
         logger.info(
             "Article %d processed: category=%s, verification=%s, published=%s",
             article_id, article.category, verification, article.is_published

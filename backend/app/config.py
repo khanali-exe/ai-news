@@ -36,6 +36,12 @@ class Settings(BaseSettings):
     # Clerk (backend API — for fetching subscribed users)
     clerk_secret_key: str = ""
 
+    # X (Twitter) API
+    x_api_key: str = ""
+    x_api_secret: str = ""
+    x_access_token: str = ""
+    x_access_token_secret: str = ""
+
     # Email (Resend)
     resend_api_key: str = ""
     email_from: str = "AI Simplest <digest@aisimplest.com>"
