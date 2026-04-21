@@ -1,5 +1,6 @@
 """Post new articles to X (Twitter) automatically."""
 import logging
+import time
 import tweepy
 from app.config import get_settings
 
@@ -15,22 +16,25 @@ CAT_HASHTAGS: dict[str, str] = {
 }
 
 
-def get_client() -> tweepy.Client | None:
+def get_api() -> tweepy.API | None:
     s = get_settings()
     if not all([s.x_api_key, s.x_api_secret, s.x_access_token, s.x_access_token_secret]):
         logger.warning("X API credentials not configured")
         return None
-    return tweepy.Client(
-        consumer_key=s.x_api_key,
-        consumer_secret=s.x_api_secret,
-        access_token=s.x_access_token,
-        access_token_secret=s.x_access_token_secret,
+    auth = tweepy.OAuth1UserHandler(
+        s.x_api_key, s.x_api_secret,
+        s.x_access_token, s.x_access_token_secret,
     )
+    return tweepy.API(auth, wait_on_rate_limit=True)
+
+
+def get_client() -> tweepy.API | None:
+    return get_api()
 
 
 def post_article(article_dict: dict) -> bool:
-    client = get_client()
-    if not client:
+    api = get_api()
+    if not api:
         return False
 
     title    = article_dict.get("title") or ""
@@ -39,24 +43,25 @@ def post_article(article_dict: dict) -> bool:
     category = article_dict.get("category") or "other"
     hashtags = CAT_HASHTAGS.get(category, CAT_HASHTAGS["other"])
     site_url = get_settings().email_site_url
+    url      = f"{site_url}/article/{slug}"
 
-    url = f"{site_url}/article/{slug}"
-
-    # Build tweet — keep under 280 chars
-    # Title (max 120) + tl_dr (max 100) + url + hashtags
     title_part = title[:117] + "…" if len(title) > 120 else title
     tl_dr_part = tl_dr[:97]  + "…" if len(tl_dr) > 100 else tl_dr
-
     tweet = f"🤖 {title_part}\n\n{tl_dr_part}\n\n{url}\n\n{hashtags}"
-
-    # Trim if still over 280
     if len(tweet) > 280:
         tweet = f"🤖 {title_part}\n\n{url}\n\n{hashtags}"
 
-    try:
-        client.create_tweet(text=tweet)
-        logger.info("Posted to X: %s", title[:60])
-        return True
-    except tweepy.TweepyException as e:
-        logger.error("Failed to post to X: %s", e)
-        return False
+    for attempt in range(3):
+        try:
+            api.update_status(tweet)
+            logger.info("Posted to X: %s", title[:60])
+            return True
+        except tweepy.errors.TwitterServerError as e:
+            logger.warning("X server error (attempt %d/3): %s", attempt + 1, e)
+            time.sleep(10)
+        except tweepy.TweepyException as e:
+            logger.error("Failed to post to X: %s", e)
+            return False
+
+    logger.error("Failed to post to X after 3 attempts")
+    return False
