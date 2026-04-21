@@ -16,25 +16,22 @@ CAT_HASHTAGS: dict[str, str] = {
 }
 
 
-def get_api() -> tweepy.API | None:
+def get_client() -> tweepy.Client | None:
     s = get_settings()
     if not all([s.x_api_key, s.x_api_secret, s.x_access_token, s.x_access_token_secret]):
         logger.warning("X API credentials not configured")
         return None
-    auth = tweepy.OAuth1UserHandler(
-        s.x_api_key, s.x_api_secret,
-        s.x_access_token, s.x_access_token_secret,
+    return tweepy.Client(
+        consumer_key=s.x_api_key,
+        consumer_secret=s.x_api_secret,
+        access_token=s.x_access_token,
+        access_token_secret=s.x_access_token_secret,
     )
-    return tweepy.API(auth, wait_on_rate_limit=True)
-
-
-def get_client() -> tweepy.API | None:
-    return get_api()
 
 
 def post_article(article_dict: dict) -> bool:
-    api = get_api()
-    if not api:
+    client = get_client()
+    if not client:
         return False
 
     title    = article_dict.get("title") or ""
@@ -53,7 +50,7 @@ def post_article(article_dict: dict) -> bool:
 
     for attempt in range(3):
         try:
-            api.update_status(tweet)
+            client.create_tweet(text=tweet)
             logger.info("Posted to X: %s", title[:60])
             return True
         except tweepy.errors.TwitterServerError as e:
