@@ -193,7 +193,7 @@ export function FilterBar({ filters, onChange }: Props) {
       {/* ── Active filter chips ── */}
       {(filters.dateFilter || filters.sourceId || filters.category) && (
         <button
-          onClick={() => onChange({ category: "", dateFilter: "", sourceId: "", page: 1 })}
+          onClick={() => { window.location.href = "/"; }}
           className="rounded-full px-2.5 py-1 text-[11px] font-medium transition-colors"
           style={{
             background: "rgba(220,38,38,0.08)",
