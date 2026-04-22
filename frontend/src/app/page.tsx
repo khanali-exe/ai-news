@@ -46,9 +46,9 @@ function HomeContent() {
     setFilters(prev => ({
       ...prev,
       search: searchParams.get("search") ?? "",
-      category: searchParams.get("category") ?? prev.category,
-      dateFilter: searchParams.get("date") ?? prev.dateFilter,
-      sourceId: searchParams.get("source") ?? prev.sourceId,
+      category: searchParams.get("category") ?? "",
+      dateFilter: searchParams.get("date") ?? "",
+      sourceId: searchParams.get("source") ?? "",
       page: 1,
     }));
   }, [searchParams]);
