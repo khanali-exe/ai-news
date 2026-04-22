@@ -10,9 +10,9 @@ interface ExplainResult {
 }
 
 const SECTIONS = [
-  { key: "what",           label: "What happened",   emoji: "📌" },
-  { key: "analogy",        label: "Think of it like", emoji: "💡" },
-  { key: "why_it_matters", label: "Why it matters",   emoji: "🎯" },
+  { key: "what",           emoji: "📌" },
+  { key: "analogy",        emoji: "💡" },
+  { key: "why_it_matters", emoji: "🎯" },
 ] as const;
 
 export function ExplainButton({ slug, accentColor = "#7c3aed" }: { slug: string; accentColor?: string }) {
@@ -56,11 +56,7 @@ export function ExplainButton({ slug, accentColor = "#7c3aed" }: { slug: string;
             {state === "loading" ? "Simplifying…" : "Explain this simply"}
           </p>
           <p className="text-xs" style={{ color: "var(--muted)" }}>
-            {state === "idle"
-              ? "Like you're 12 — no jargon, just clarity"
-              : state === "loading"
-              ? "Finding the best analogy…"
-              : "Tap to toggle"}
+            {state === "loading" ? "Finding the best analogy…" : state === "done" ? "Tap to toggle" : "Plain English, no jargon"}
           </p>
         </div>
 
@@ -76,17 +72,15 @@ export function ExplainButton({ slug, accentColor = "#7c3aed" }: { slug: string;
       {state === "done" && open && result && (
         <div className="mt-3 overflow-hidden rounded-2xl fade-up"
              style={{ background: `${accentColor}08`, border: `1px solid ${accentColor}20` }}>
-          <div className="px-5 py-5 space-y-4">
-            {SECTIONS.map(({ key, label, emoji }) => (
+          <div className="px-5 py-5 space-y-3">
+            {SECTIONS.map(({ key, emoji }, i) => (
               <div key={key}>
-                <p className="mb-1.5 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest"
-                   style={{ color: accentColor, opacity: 0.7 }}>
-                  <span>{emoji}</span>
-                  {label}
-                </p>
                 <p className="text-sm leading-relaxed" style={{ color: "var(--foreground)", opacity: 0.85 }}>
-                  {result[key]}
+                  <span className="mr-1.5">{emoji}</span>{result[key]}
                 </p>
+                {i < SECTIONS.length - 1 && (
+                  <div className="mt-3 border-t" style={{ borderColor: `${accentColor}15` }} />
+                )}
               </div>
             ))}
           </div>
