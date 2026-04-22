@@ -26,12 +26,20 @@ function HomeContent() {
     `${API_BASE}/api/v1/articles/stats`, swrFetcher, { revalidateOnFocus: false, refreshInterval: 120000 }
   );
 
+  function loadSavedFilters(): Partial<FilterState> {
+    try {
+      const saved = localStorage.getItem("ainews_filters");
+      return saved ? JSON.parse(saved) : {};
+    } catch { return {}; }
+  }
+
+  const saved = loadSavedFilters();
   const [filters, setFilters] = useState<FilterState>({
-    category: searchParams.get("category") ?? "",
+    category: searchParams.get("category") ?? saved.category ?? "",
     search: searchParams.get("search") ?? "",
     page: 1,
-    dateFilter: searchParams.get("date") ?? "",
-    sourceId: searchParams.get("source") ?? "",
+    dateFilter: searchParams.get("date") ?? saved.dateFilter ?? "",
+    sourceId: searchParams.get("source") ?? saved.sourceId ?? "",
   });
 
   useEffect(() => {
@@ -48,6 +56,15 @@ function HomeContent() {
   function updateFilters(update: Partial<FilterState>) {
     const next = { ...filters, ...update };
     setFilters(next);
+    // Persist to localStorage
+    try {
+      localStorage.setItem("ainews_filters", JSON.stringify({
+        category: next.category,
+        dateFilter: next.dateFilter,
+        sourceId: next.sourceId,
+      }));
+    } catch {}
+    // Update URL
     const params = new URLSearchParams();
     if (next.category) params.set("category", next.category);
     if (next.search) params.set("search", next.search);
