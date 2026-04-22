@@ -102,7 +102,13 @@ def list_articles(
     if search:
         term = f"%{search}%"
         query = query.filter(
-            or_(Article.title.ilike(term), Article.tl_dr.ilike(term))
+            or_(
+                Article.title.ilike(term),
+                Article.tl_dr.ilike(term),
+                Article.what_happened.ilike(term),
+                Article.why_it_matters.ilike(term),
+                Article.potential_use_case.ilike(term),
+            )
         )
     # Cursor: only articles published at or before the snapshot taken on page 1
     if max_id is not None:
