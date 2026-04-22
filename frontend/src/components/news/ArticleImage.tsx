@@ -32,7 +32,7 @@ export function ArticleImage({ imageUrl, category, title, className = "" }: Prop
   }
 
   return (
-    <div className={`relative overflow-hidden ${className}`}>
+    <div className={`relative overflow-hidden bg-[#0d0e11] ${className}`}>
       <CategoryArt category={category} />
       <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
     </div>
