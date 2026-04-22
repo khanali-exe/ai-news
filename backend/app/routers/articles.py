@@ -243,24 +243,36 @@ def explain_article(slug: str, db: Session = Depends(get_db)):
         timeout=20,
     )
 
-    prompt = f"""Explain this AI news article in very simple terms, like you're explaining to someone with no technical background. Be friendly and clear, max 3 sentences.
+    prompt = f"""You are explaining an AI news story to a curious 12-year-old. Your job is to make it click instantly.
+
+Rules:
+- Zero jargon. If a technical word is unavoidable, explain it in brackets immediately.
+- Use one vivid real-world analogy or comparison to make the concept concrete.
+- Structure your response as exactly 3 parts:
+  1. "what": One sentence — what happened, in plain words.
+  2. "analogy": One sentence — a real-world analogy or comparison a 12-year-old would get.
+  3. "why_it_matters": One sentence — why this is a big deal for real people.
 
 Title: {article.title}
 Summary: {article.tl_dr or ''}
 Details: {(article.what_happened or '')[:1000]}
 
-Return JSON: {{"explanation": "your simple explanation here"}}"""
+Return JSON: {{"what": "...", "analogy": "...", "why_it_matters": "..."}}"""
 
     try:
         resp = client.chat.completions.create(
             model=settings.ai_model,
             response_format={"type": "json_object"},
             messages=[{"role": "user", "content": prompt}],
-            temperature=0.3,
-            max_tokens=200,
+            temperature=0.4,
+            max_tokens=300,
         )
         data = _json.loads(resp.choices[0].message.content)
-        result = {"explanation": data.get("explanation", "")}
+        result = {
+            "what": data.get("what", ""),
+            "analogy": data.get("analogy", ""),
+            "why_it_matters": data.get("why_it_matters", ""),
+        }
         cache_set(cache_key, result, 604800)  # cache 7 days
         return result
     except Exception as e:

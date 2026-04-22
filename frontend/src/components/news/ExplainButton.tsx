@@ -3,9 +3,21 @@ import { useState } from "react";
 import { Sparkles, ChevronDown, Loader2 } from "lucide-react";
 import { API_BASE } from "@/lib/constants";
 
+interface ExplainResult {
+  what: string;
+  analogy: string;
+  why_it_matters: string;
+}
+
+const SECTIONS = [
+  { key: "what",           label: "What happened",   emoji: "📌" },
+  { key: "analogy",        label: "Think of it like", emoji: "💡" },
+  { key: "why_it_matters", label: "Why it matters",   emoji: "🎯" },
+] as const;
+
 export function ExplainButton({ slug, accentColor = "#7c3aed" }: { slug: string; accentColor?: string }) {
   const [state, setState] = useState<"idle" | "loading" | "done" | "error">("idle");
-  const [explanation, setExplanation] = useState("");
+  const [result, setResult] = useState<ExplainResult | null>(null);
   const [open, setOpen] = useState(false);
 
   async function handleClick() {
@@ -15,7 +27,7 @@ export function ExplainButton({ slug, accentColor = "#7c3aed" }: { slug: string;
       const res = await fetch(`${API_BASE}/api/v1/articles/${slug}/explain`, { method: "POST" });
       if (!res.ok) throw new Error();
       const data = await res.json();
-      setExplanation(data.explanation);
+      setResult(data);
       setState("done");
       setOpen(true);
     } catch {
@@ -32,7 +44,6 @@ export function ExplainButton({ slug, accentColor = "#7c3aed" }: { slug: string;
                    transition-all duration-200 hover:scale-[1.01] active:scale-[0.99] disabled:opacity-60"
         style={{ background: "var(--surface)", border: "1px solid var(--border)" }}
       >
-        {/* Icon */}
         <div className="flex h-9 w-9 shrink-0 items-center justify-center rounded-xl transition-transform group-hover:scale-110"
              style={{ background: `${accentColor}18`, color: accentColor }}>
           {state === "loading"
@@ -41,16 +52,20 @@ export function ExplainButton({ slug, accentColor = "#7c3aed" }: { slug: string;
         </div>
 
         <div className="flex-1 text-left">
-          <p className="text-sm font-semibold text-zinc-300">
-            {state === "loading" ? "Generating…" : "Explain this simply"}
+          <p className="text-sm font-semibold" style={{ color: "var(--foreground)" }}>
+            {state === "loading" ? "Simplifying…" : "Explain this simply"}
           </p>
           <p className="text-xs" style={{ color: "var(--muted)" }}>
-            {state === "idle" ? "Plain English, no jargon" : state === "loading" ? "Using AI to simplify…" : "Tap to toggle"}
+            {state === "idle"
+              ? "Like you're 12 — no jargon, just clarity"
+              : state === "loading"
+              ? "Finding the best analogy…"
+              : "Tap to toggle"}
           </p>
         </div>
 
         {state === "done" && (
-          <ChevronDown className={`h-4 w-4 text-zinc-600 transition-transform ${open ? "rotate-180" : ""}`} />
+          <ChevronDown className={`h-4 w-4 text-zinc-500 transition-transform duration-200 ${open ? "rotate-180" : ""}`} />
         )}
       </button>
 
@@ -58,14 +73,22 @@ export function ExplainButton({ slug, accentColor = "#7c3aed" }: { slug: string;
         <p className="mt-2 px-1 text-xs text-red-400">Could not generate explanation. Try again.</p>
       )}
 
-      {state === "done" && open && (
-        <div className="mt-2 overflow-hidden rounded-2xl fade-up"
-             style={{ background: `${accentColor}0a`, border: `1px solid ${accentColor}25` }}>
-          <div className="px-5 py-5">
-            <p className="mb-2 text-[10px] font-bold uppercase tracking-widest" style={{ color: accentColor, opacity: 0.6 }}>
-              Plain English
-            </p>
-            <p className="text-sm leading-relaxed text-zinc-300">{explanation}</p>
+      {state === "done" && open && result && (
+        <div className="mt-3 overflow-hidden rounded-2xl fade-up"
+             style={{ background: `${accentColor}08`, border: `1px solid ${accentColor}20` }}>
+          <div className="px-5 py-5 space-y-4">
+            {SECTIONS.map(({ key, label, emoji }) => (
+              <div key={key}>
+                <p className="mb-1.5 flex items-center gap-1.5 text-[10px] font-bold uppercase tracking-widest"
+                   style={{ color: accentColor, opacity: 0.7 }}>
+                  <span>{emoji}</span>
+                  {label}
+                </p>
+                <p className="text-sm leading-relaxed" style={{ color: "var(--foreground)", opacity: 0.85 }}>
+                  {result[key]}
+                </p>
+              </div>
+            ))}
           </div>
         </div>
       )}
