@@ -2,6 +2,7 @@
 import Link from "next/link";
 import { ArrowUpRight } from "lucide-react";
 import { CategoryPill } from "./CategoryPill";
+import { ArticleImage } from "./ArticleImage";
 import { BookmarkButton } from "@/components/ui/BookmarkButton";
 import { formatDate } from "@/lib/utils";
 import type { ArticleList } from "@/types";
@@ -44,6 +45,14 @@ export function NewsCard({ article, featured = false, focused = false, batchInde
     >
       {/* Category accent top bar */}
       <div className="h-[2px] w-full shrink-0" style={{ background: accent.top, opacity: 0.7 }} />
+
+      {/* Article image */}
+      <ArticleImage
+        imageUrl={article.image_url}
+        category={article.category}
+        title={article.title}
+        className={featured ? "h-44 sm:h-52" : "h-36"}
+      />
 
       <div className="flex flex-1 flex-col p-5">
         {/* Top row */}
