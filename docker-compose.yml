@@ -43,7 +43,7 @@ services:
     container_name: ainews_backend
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-ainews}:${POSTGRES_PASSWORD:-ainews_secret}@postgres:5432/${POSTGRES_DB:-ainews}
+      DATABASE_URL: ${DATABASE_URL:-postgresql://ainews:ainews_secret@postgres:5432/ainews}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       SECRET_KEY: ${SECRET_KEY:-dev_secret_key_change_in_prod}
@@ -72,7 +72,7 @@ services:
     container_name: ainews_celery_worker
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-ainews}:${POSTGRES_PASSWORD:-ainews_secret}@postgres:5432/${POSTGRES_DB:-ainews}
+      DATABASE_URL: ${DATABASE_URL:-postgresql://ainews:ainews_secret@postgres:5432/ainews}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       SECRET_KEY: ${SECRET_KEY:-dev_secret_key_change_in_prod}
@@ -99,7 +99,7 @@ services:
     container_name: ainews_celery_beat
     restart: unless-stopped
     environment:
-      DATABASE_URL: postgresql://${POSTGRES_USER:-ainews}:${POSTGRES_PASSWORD:-ainews_secret}@postgres:5432/${POSTGRES_DB:-ainews}
+      DATABASE_URL: ${DATABASE_URL:-postgresql://ainews:ainews_secret@postgres:5432/ainews}
       REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       SECRET_KEY: ${SECRET_KEY:-dev_secret_key_change_in_prod}
