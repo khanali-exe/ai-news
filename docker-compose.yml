@@ -44,7 +44,7 @@ services:
     restart: unless-stopped
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-ainews}:${POSTGRES_PASSWORD:-ainews_secret}@postgres:5432/${POSTGRES_DB:-ainews}
-      REDIS_URL: redis://redis:6379/0
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       SECRET_KEY: ${SECRET_KEY:-dev_secret_key_change_in_prod}
       ENVIRONMENT: ${ENVIRONMENT:-development}
@@ -73,7 +73,7 @@ services:
     restart: unless-stopped
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-ainews}:${POSTGRES_PASSWORD:-ainews_secret}@postgres:5432/${POSTGRES_DB:-ainews}
-      REDIS_URL: redis://redis:6379/0
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       SECRET_KEY: ${SECRET_KEY:-dev_secret_key_change_in_prod}
       ENVIRONMENT: ${ENVIRONMENT:-development}
@@ -100,7 +100,7 @@ services:
     restart: unless-stopped
     environment:
       DATABASE_URL: postgresql://${POSTGRES_USER:-ainews}:${POSTGRES_PASSWORD:-ainews_secret}@postgres:5432/${POSTGRES_DB:-ainews}
-      REDIS_URL: redis://redis:6379/0
+      REDIS_URL: ${REDIS_URL:-redis://redis:6379/0}
       OPENAI_API_KEY: ${OPENAI_API_KEY}
       SECRET_KEY: ${SECRET_KEY:-dev_secret_key_change_in_prod}
       ENVIRONMENT: ${ENVIRONMENT:-development}
