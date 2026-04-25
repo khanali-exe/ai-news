@@ -22,7 +22,7 @@ class Settings(BaseSettings):
 
     # Cache TTLs (seconds)
     cache_ttl_article: int = 86400       # 24 hours
-    cache_ttl_article_list: int = 300    # 5 minutes
+    cache_ttl_article_list: int = 1800   # 30 minutes (matches scrape interval)
 
     # Processing
     ai_max_retries: int = 3
