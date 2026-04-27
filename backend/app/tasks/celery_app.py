@@ -43,7 +43,7 @@ celery_app.conf.update(
     broker_heartbeat=0,               # disable broker-level heartbeat (Redis doesn't need it)
     broker_transport_options={
         "visibility_timeout": 3600,   # 1 hour task requeue timeout
-        "polling_interval": 5.0,      # BRPOP poll every 5s instead of 0.1s — 50x fewer BRPOP commands
+        "polling_interval": 60.0,     # BRPOP poll every 60s — tasks run every 30min so delay is fine
     },
 
     beat_schedule={
